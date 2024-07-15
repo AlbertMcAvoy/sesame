@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+    postgres:
+        image: postgres:13
+        environment:
+            POSTGRES_USER: myuser
+            POSTGRES_PASSWORD: mypassword
+            POSTGRES_DB: mydatabase
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - app_network
+
+    back:
+        build:
+            context: ../backend/
+        volumes:
+            - ../backend/:/app
+            - ../backend/target:/app/target
+        ports:
+            - "8080:8080"
+        env_file:
+            - .env
+        depends_on:
+            - postgres
+        networks:
+            - app_network
+    
+    front:
+        build:
+            context: ../frontend/
+        ports:
+            - "80:80"
+
+networks:
+    app_network:
+        driver: bridge
+
+volumes:
+    postgres_data:
