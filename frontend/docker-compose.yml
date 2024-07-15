@@ -1,0 +1,8 @@
+# version: '<COMPOSE VERSION>'
+version: '3.8'
+services:
+    frontend:
+        build: .
+        restart: always
+        ports:
+            - "8080:80"
