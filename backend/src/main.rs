@@ -1,6 +1,5 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use controllers::categories_controller;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use models::database::AppState;
@@ -43,13 +42,7 @@ async fn main() -> std::io::Result<()> {
             .max_age(3600);
         App::new()
             .wrap(cors)
-            .app_data(web::Data::new(state.clone())).service(
-                web::scope("/categories")
-                    .route("", web::get().to(categories_controller::get_categories))
-                    .route("", web::post().to(categories_controller::create_category))
-                    .route("/{category_id}", web::put().to(categories_controller::update_category))
-                    .route("/{category_id}", web::delete().to(categories_controller::delete_category))
-            )
+            .app_data(web::Data::new(state.clone()))
     })
     .bind(("0.0.0.0", 8080))?
     .run()
