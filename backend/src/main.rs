@@ -1,16 +1,20 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use controllers::categories_controller;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use models::database::AppState;
+use actix::Actor;
 use r2d2::Pool;
+use ws::server;
 use std::env;
+use std::sync::Arc;
+use controllers::web_socket;
 
 mod models;
 mod schema;
 mod controllers;
 mod services;
+mod ws;
 
 pub type PostgresPool = Pool<ConnectionManager<PgConnection>>;
 
@@ -32,7 +36,10 @@ fn logging_setup() {
 async fn main() -> std::io::Result<()> {
     logging_setup();
     let pool = get_pool();
-    let state = AppState { conn: pool };
+    let state = Arc::new(AppState { conn: pool });
+
+    // start chat server actor
+    let server = server::Server::new().start();
 
     println!("Backend launched!");
     HttpServer::new(move || {
@@ -43,13 +50,9 @@ async fn main() -> std::io::Result<()> {
             .max_age(3600);
         App::new()
             .wrap(cors)
-            .app_data(web::Data::new(state.clone())).service(
-                web::scope("/categories")
-                    .route("", web::get().to(categories_controller::get_categories))
-                    .route("", web::post().to(categories_controller::create_category))
-                    .route("/{category_id}", web::put().to(categories_controller::update_category))
-                    .route("/{category_id}", web::delete().to(categories_controller::delete_category))
-            )
+            .app_data(web::Data::from(state.clone()))
+            .app_data(web::Data::new(server.clone()))
+            .route("/ws", web::get().to(web_socket::chat_route))
     })
     .bind(("0.0.0.0", 8080))?
     .run()
