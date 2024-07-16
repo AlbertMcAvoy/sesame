@@ -26,6 +26,7 @@ diesel::table! {
     groups (id) {
         id -> Int4,
         user_id -> Int4,
+        name -> Varchar,
     }
 }
 
