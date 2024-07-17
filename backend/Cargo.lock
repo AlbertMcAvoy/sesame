@@ -70,7 +70,11 @@ dependencies = [
  "actix-service",
  "actix-utils",
  "ahash",
+<<<<<<< HEAD
  "base64 0.22.1",
+=======
+ "base64",
+>>>>>>> 4dd1206 ([ADD] - Create models and update migrations)
  "bitflags",
  "brotli",
  "bytes",
@@ -397,12 +401,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
+<<<<<<< HEAD
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
+=======
+>>>>>>> 4dd1206 ([ADD] - Create models and update migrations)
 name = "bitflags"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1498,6 +1505,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "syn"
+<<<<<<< HEAD
 version = "2.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b146dcf730474b4bcd16c311627b31ede9ab149045db4d6088b3becaea046462"
@@ -1510,6 +1518,9 @@ dependencies = [
 [[package]]
 name = "thiserror"
 version = "1.0.63"
+=======
+version = "2.0.68"
+>>>>>>> 4dd1206 ([ADD] - Create models and update migrations)
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
 dependencies = [
