@@ -3,6 +3,10 @@ import 'pages/accueil.dart';
 import 'pages/report.dart';
 import 'pages/returnOk.dart';
 import 'manage_door.dart';
+import 'toilet_locked.dart';
+import 'toilet_not_available.dart';
+import 'toilet_opened.dart';
+import 'toilet_see_you_soon.dart';
 
 class Layout extends StatefulWidget {
   @override
