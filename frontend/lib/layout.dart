@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/accueil.dart';
+import 'pages/report.dart';
+import 'pages/returnOk.dart';
 
 class Layout extends StatefulWidget {
   @override
@@ -11,9 +13,8 @@ class _LayoutState extends State<Layout> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    MaterialApp(
-      home: ListToilette(),
-    ),
+    ListToilette(),
+    // ReportToilette(),
     Text(
       'Index 1: Business',
       style: optionStyle,
@@ -22,6 +23,7 @@ class _LayoutState extends State<Layout> {
       'Index 2: School',
       style: optionStyle,
     ),
+    ReturnOk(),
   ];
 
   void _onItemTapped(int index) {
