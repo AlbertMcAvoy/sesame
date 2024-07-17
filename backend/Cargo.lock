@@ -34,6 +34,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f7b0a21988c1bf877cf4759ef5ddaac04c1c9fe808c9142ecb78ba97d97a28a"
 dependencies = [
  "bitflags",
+ "bitflags",
  "bytes",
  "futures-core",
  "futures-sink",
@@ -72,6 +73,7 @@ dependencies = [
  "ahash",
  "base64",
  "bitflags",
+ "bitflags",
  "brotli",
  "bytes",
  "bytestring",
@@ -105,6 +107,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e01ed3140b2f8d422c68afa1ed2e85d996ea619c988ac834d255db32138655cb"
 dependencies = [
  "quote",
+ "syn",
  "syn",
 ]
 
@@ -584,6 +587,7 @@ dependencies = [
  "quote",
  "strsim",
  "syn",
+ "syn",
 ]
 
 [[package]]
@@ -594,6 +598,7 @@ checksum = "d336a2a514f6ccccaa3e09b02d41d35330c07ddf03a62165fcec10bb561c7806"
 dependencies = [
  "darling_core",
  "quote",
+ "syn",
  "syn",
 ]
 
@@ -617,6 +622,7 @@ dependencies = [
  "quote",
  "rustc_version",
  "syn",
+ "syn",
 ]
 
 [[package]]
@@ -626,8 +632,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62d6dcd069e7b5fe49a302411f759d4cf1cf2c27fe798ef46fb8baefc053dd2b"
 dependencies = [
  "bitflags",
+ "bitflags",
  "byteorder",
  "chrono",
+ "diesel_derives",
  "diesel_derives",
  "itoa",
  "pq-sys",
@@ -637,12 +645,17 @@ dependencies = [
 [[package]]
 name = "diesel-derive-enum"
 version = "2.1.0"
+name = "diesel-derive-enum"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81c5131a2895ef64741dad1d483f358c2a229a3a2d1b256778cdc5e146db64d4"
 checksum = "81c5131a2895ef64741dad1d483f358c2a229a3a2d1b256778cdc5e146db64d4"
 dependencies = [
  "heck 0.4.1",
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
+ "syn",
  "syn",
 ]
 
@@ -657,6 +670,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+ "syn",
 ]
 
 [[package]]
@@ -665,6 +679,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "209c735641a413bc68c4923a9d6ad4bcb3ca306b794edaa7eb0b3228a99ffb25"
 dependencies = [
+ "syn",
  "syn",
 ]
 
@@ -693,8 +708,10 @@ dependencies = [
  "darling",
  "either",
  "heck 0.5.0",
+ "heck 0.5.0",
  "proc-macro2",
  "quote",
+ "syn",
  "syn",
 ]
 
@@ -849,6 +866,12 @@ name = "hashbrown"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+
+[[package]]
+name = "heck"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
 
 [[package]]
 name = "heck"
@@ -1218,6 +1241,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a908a6e00f1fdd0dfd9c0eb08ce85126f6d8bbda50017e74bc4a4b7d4a926a4"
 dependencies = [
  "bitflags",
+ "bitflags",
 ]
 
 [[package]]
@@ -1315,6 +1339,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+ "syn",
 ]
 
 [[package]]
@@ -1349,6 +1374,8 @@ dependencies = [
  "actix-web",
  "actix-web-actors",
  "chrono",
+ "diesel",
+ "diesel-derive-enum",
  "diesel",
  "diesel-derive-enum",
  "dotenv",
@@ -1601,6 +1628,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+ "syn",
  "wasm-bindgen-shared",
 ]
 
@@ -1622,6 +1650,7 @@ checksum = "e94f17b526d0a461a191c78ea52bbce64071ed5c04c9ffe424dcb38f74171bb7"
 dependencies = [
  "proc-macro2",
  "quote",
+ "syn",
  "syn",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
@@ -1798,6 +1827,7 @@ checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
+ "syn",
  "syn",
 ]
 
