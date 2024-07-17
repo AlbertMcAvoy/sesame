@@ -34,7 +34,15 @@ class _LayoutState extends State<Layout> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BottomNavigationBar Sample'),
+        title: Center(
+          child: Text(
+            'Sanitaires à proximité',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+        backgroundColor: Color(0xff003366),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -55,7 +63,9 @@ class _LayoutState extends State<Layout> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.white,
+        selectedItemColor: Color(0xff98FF98),
+        backgroundColor: Color(0xff003366),
         onTap: _onItemTapped,
       ),
     );
