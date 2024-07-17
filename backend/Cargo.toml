@@ -15,3 +15,6 @@ r2d2 = "0.8"
 chrono = { version = "0.4.38", features = ["serde"] }
 uuid = { version = "1.9.1", features = ["serde", "v4", "fast-rng", "macro-diagnostics"] }
 diesel_geometry = "1.4.0"
+actix-web-actors = "4.3.0"
+actix = "0.13.5"
+rand = "0.8.5"
