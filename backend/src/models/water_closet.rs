@@ -1,3 +1,4 @@
+use crate::models::group::Group;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +15,10 @@ pub enum CleanStates {
     OutOfOrder,
 }
 
-#[derive(Queryable, Selectable, Identifiable, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(
+    Queryable, Selectable, Identifiable, Associations, PartialEq, Debug, Serialize, Deserialize,
+)]
+#[diesel(belongs_to(Group))]
 #[diesel(table_name = crate::schema::water_closets)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct WaterCloset {
