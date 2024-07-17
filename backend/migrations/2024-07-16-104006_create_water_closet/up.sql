@@ -1,4 +1,4 @@
-CREATE TYPE clean_state AS ENUM ('CLEANED', 'USED', 'DIRTY', 'OUT_OF_ORDER');
+CREATE TYPE clean_states AS ENUM ('CLEANED', 'USED', 'DIRTY', 'OUT_OF_ORDER');
 
 CREATE TABLE
     water_closets (
@@ -7,7 +7,7 @@ CREATE TABLE
         is_disabled BOOLEAN NOT NULL DEFAULT false,
         is_door_opened BOOLEAN NOT NULL DEFAULT false,
         is_door_locked BOOLEAN NOT NULL DEFAULT false,
-        clean_state clean_state NOT NULL
+        clean_state clean_states NOT NULL
     );
 
 INSERT INTO

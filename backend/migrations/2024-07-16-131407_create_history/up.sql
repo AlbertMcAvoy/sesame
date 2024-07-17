@@ -1,4 +1,4 @@
-CREATE TYPE action AS ENUM (
+CREATE TYPE actions AS ENUM (
     'DOOR_OPENING',
     'DOOR_CLOSING',
     'LOCK_OPENING',
@@ -12,7 +12,7 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         water_closet_id INTEGER NOT NULL REFERENCES water_closets (id),
         datetime TIMESTAMP NOT NULL,
-        action action NOT NULL
+        action actions NOT NULL
     );
 
 INSERT INTO
