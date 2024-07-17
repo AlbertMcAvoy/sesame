@@ -1,3 +1,5 @@
+use crate::models::user::User;
+use crate::models::water_closet::WaterCloset;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -28,7 +30,11 @@ pub enum Topics {
     Other,
 }
 
-#[derive(Queryable, Selectable, Identifiable, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(
+    Queryable, Selectable, Identifiable, Associations, PartialEq, Debug, Serialize, Deserialize,
+)]
+#[diesel(belongs_to(User))]
+#[diesel(belongs_to(WaterCloset))]
 #[diesel(table_name = crate::schema::reports)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Report {

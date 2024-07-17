@@ -1,7 +1,11 @@
+use crate::models::user::User;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable, Identifiable, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(
+    Queryable, Selectable, Identifiable, Associations, PartialEq, Debug, Serialize, Deserialize,
+)]
+#[diesel(belongs_to(User))]
 #[diesel(table_name = crate::schema::groups)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Group {

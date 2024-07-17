@@ -1,3 +1,4 @@
+use crate::models::water_closet::WaterCloset;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -19,7 +20,10 @@ pub enum Actions {
     NFCScan,
 }
 
-#[derive(Queryable, Selectable, Identifiable, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(
+    Queryable, Selectable, Identifiable, Associations, PartialEq, Debug, Serialize, Deserialize,
+)]
+#[diesel(belongs_to(WaterCloset))]
 #[diesel(table_name = crate::schema::histories)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct History {
