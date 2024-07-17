@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'pages/accueil.dart';
 import 'pages/report.dart';
 import 'pages/returnOk.dart';
-import 'manage_door.dart';
 import 'toilet_locked.dart';
 import 'toilet_not_available.dart';
 import 'toilet_opened.dart';
@@ -54,7 +53,6 @@ class _LayoutState extends State<Layout> {
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
-      backgroundColor: Color(0xffE2E2E2),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
