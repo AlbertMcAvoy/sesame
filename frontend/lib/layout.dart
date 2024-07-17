@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pages/accueil.dart';
 import 'pages/report.dart';
 import 'pages/returnOk.dart';
+import 'manage_door.dart';
 
 class Layout extends StatefulWidget {
   @override
@@ -15,10 +16,7 @@ class _LayoutState extends State<Layout> {
   static const List<Widget> _widgetOptions = <Widget>[
     ListToilette(),
     // ReportToilette(),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
+    ToiletDynamic(),
     Text(
       'Index 2: School',
       style: optionStyle,
@@ -35,6 +33,7 @@ class _LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffe2e2e2),
       appBar: AppBar(
         title: Center(
           child: Text(
