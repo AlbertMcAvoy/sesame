@@ -1,10 +1,10 @@
-
 import 'dart:async';
 import 'dart:convert' show json;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import './src/screens/websocket_screen.dart';
 import 'package:http/http.dart' as http;
 
 import 'src/sign_in_button.dart';
@@ -26,9 +26,10 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 
 void main() {
   runApp(
-    const MaterialApp(
+    MaterialApp(
       title: 'Sesame',
-      home: SignInSesame(),
+      debugShowCheckedModeBanner: false,
+      home: WebSocketScreen(), /*SignInSesame()*/ /** TODO: appeler cette classe dans le layout quand il sera pret */
     ),
   );
 }

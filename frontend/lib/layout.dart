@@ -11,9 +11,6 @@ class _LayoutState extends State<Layout> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    MaterialApp(
-      home: ListToilette(),
-    ),
     Text(
       'Index 1: Business',
       style: optionStyle,
