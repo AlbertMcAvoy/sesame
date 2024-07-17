@@ -1,4 +1,7 @@
-use std::time::{Duration, Instant};
+use std::{
+    borrow::Borrow,
+    time::{Duration, Instant},
+};
 
 use actix::prelude::*;
 use actix_web_actors::ws::{self, CloseCode, CloseReason};
@@ -16,7 +19,7 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 pub enum ActionSession {
     ClientScan,
     ClientLeave,
-    Unkown
+    Unkown,
 }
 
 impl ActionSession {
@@ -24,7 +27,7 @@ impl ActionSession {
         match pattern {
             "client-scan" => ActionSession::ClientScan,
             "client-leave" => ActionSession::ClientLeave,
-            _ => ActionSession::Unkown
+            _ => ActionSession::Unkown,
         }
     }
 }
@@ -104,7 +107,9 @@ impl Actor for WsSession {
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         // notify server
-        self.addr.do_send(server::Disconnect { session_id: self.id });
+        self.addr.do_send(server::Disconnect {
+            session_id: self.id,
+        });
         Running::Stop
     }
 }
@@ -134,44 +139,35 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                 let action = ActionSession::matching(v[0]);
 
                 match action {
-                     ActionSession::ClientScan => {
-                        match v.len() {
-                            3 => {
-                                match v[1].parse::<i32>() {
-                                    Ok(toilet_id) => self.addr.do_send(server::ScanMessage {
-                                        session_id: self.id,
-                                        toilet_id,
-                                        scan_mode: v[2].to_owned(),
-                                        app_state: self.state.to_owned()
-                                    }),
-                                    Err(e) => ctx.text(format!("!!! Invalid toilet id : {}", e)),
-                                }
-                            },
-                            _ => ctx.text(format!("!!! Invalid number of arguments"))
-                        }
+                    ActionSession::ClientScan => match v.len() {
+                        3 => match v[1].parse::<i32>() {
+                            Ok(toilet_id) => self.addr.do_send(server::ScanMessage {
+                                session_id: self.id,
+                                toilet_id,
+                                scan_mode: v[2].to_owned(),
+                                app_state: self.state.to_owned(),
+                            }),
+                            Err(e) => ctx.text(format!("!!! Invalid toilet id : {}", e)),
+                        },
+                        _ => ctx.text(format!("!!! Invalid number of arguments")),
                     },
-                    ActionSession::ClientLeave => {
-                        match v.len() {
-                            2 => {
-                                match v[1].parse::<i32>() {
-                                    Ok(toilet_id) => {
-                                        self.addr.do_send(server::LeaveMessage {
-                                            session_id: self.id,
-                                            toilet_id,
-                                            app_state: self.state.to_owned()
-                                        });
-                                        ctx.close(Some(CloseReason {
-                                            code: CloseCode::Normal,
-                                            description: Some("END".to_string()),
-                                        }));
-                                        ctx.stop();
-                                    },
-                                    Err(_) => ctx.text(format!("!!! Invalid toilet id")),
-                                }
-                            },
-                            _ => ctx.text(format!("!!! Invalid number of arguments"))
-                        }
-                        
+                    ActionSession::ClientLeave => match v.len() {
+                        2 => match v[1].parse::<i32>() {
+                            Ok(toilet_id) => {
+                                self.addr.do_send(server::LeaveMessage {
+                                    session_id: self.id,
+                                    toilet_id,
+                                    app_state: self.state.to_owned(),
+                                });
+                                ctx.close(Some(CloseReason {
+                                    code: CloseCode::Normal,
+                                    description: Some("END".to_string()),
+                                }));
+                                ctx.stop();
+                            }
+                            Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                        },
+                        _ => ctx.text(format!("!!! Invalid number of arguments")),
                     },
                     ActionSession::Unkown => ctx.text(format!("!!! Unknown command: {m:?}")),
                 }

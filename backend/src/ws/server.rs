@@ -4,15 +4,15 @@
 
 use std::collections::{HashMap, HashSet};
 
-use rand::{rngs::ThreadRng, Rng};
 use actix::prelude::*;
+use rand::{rngs::ThreadRng, Rng};
 
-use diesel::{prelude::*, result::Error};
 use crate::{
     models::{database::AppState, water_closet::WaterCloset},
     schema::water_closets::{dsl::water_closets, id},
-    services::robot_simulator_services
+    services::robot_simulator_services,
 };
+use diesel::{prelude::*, result::Error};
 
 ///  server sends this messages to session
 #[derive(Message)]
@@ -41,7 +41,7 @@ pub struct ScanMessage {
     pub session_id: usize,
     pub toilet_id: i32,
     pub scan_mode: String,
-    pub app_state: AppState
+    pub app_state: AppState,
 }
 
 #[derive(Message)]
@@ -49,7 +49,7 @@ pub struct ScanMessage {
 pub struct LeaveMessage {
     pub session_id: usize,
     pub toilet_id: i32,
-    pub app_state: AppState
+    pub app_state: AppState,
 }
 
 /// `Server` manages rooms and responsible for coordinating session.
@@ -105,7 +105,10 @@ impl Handler<Connect> for Server {
         self.sessions.insert(session_id, msg.addr);
 
         // auto join session to main room
-        self.rooms.entry("main".to_owned()).or_default().insert(session_id);
+        self.rooms
+            .entry("main".to_owned())
+            .or_default()
+            .insert(session_id);
 
         // send id back
         session_id
@@ -138,21 +141,27 @@ impl Handler<ScanMessage> for Server {
     type Result = ();
 
     fn handle(&mut self, scan_message: ScanMessage, _: &mut Context<Self>) {
-        let water_closet_result: Result<WaterCloset, Error> = water_closets.find(scan_message.toilet_id).first::<WaterCloset>(&mut scan_message.app_state.get_conn());
+        let water_closet_result: Result<WaterCloset, Error> = water_closets
+            .find(scan_message.toilet_id)
+            .first::<WaterCloset>(&mut scan_message.app_state.get_conn());
         match water_closet_result {
             Ok(water_closet) => {
                 println!("{:?}", water_closet.is_available);
-                if water_closet.is_available { 
+                if water_closet.is_available {
                     self.send_message("AVAILABLE", scan_message.session_id);
-                    match robot_simulator_services::scaning_opening_door(water_closet, scan_message.scan_mode.as_str(), &mut scan_message.app_state.get_conn()) {
+                    match robot_simulator_services::scaning_opening_door(
+                        water_closet,
+                        scan_message.scan_mode.as_str(),
+                        &mut scan_message.app_state.get_conn(),
+                    ) {
                         Ok(res) => self.send_message(&res, scan_message.session_id),
-                        Err(res) => self.send_message(&res, scan_message.session_id)
+                        Err(res) => self.send_message(&res, scan_message.session_id),
                     };
-                } else { 
+                } else {
                     self.send_message("UNAVAILABLE", scan_message.session_id);
                 };
-            },
-            Err(_) => self.send_message("!!! Invalid toilet id", scan_message.session_id)
+            }
+            Err(_) => self.send_message("!!! Invalid toilet id", scan_message.session_id),
         };
     }
 }
@@ -162,11 +171,16 @@ impl Handler<LeaveMessage> for Server {
     type Result = ();
 
     fn handle(&mut self, leave_message: LeaveMessage, _: &mut Context<Self>) {
-        let water_closet_result: Result<WaterCloset, Error> = water_closets.filter(id.eq(leave_message.toilet_id)).first::<WaterCloset>(&mut leave_message.app_state.get_conn());
+        let water_closet_result: Result<WaterCloset, Error> = water_closets
+            .filter(id.eq(leave_message.toilet_id))
+            .first::<WaterCloset>(&mut leave_message.app_state.get_conn());
         match water_closet_result {
             Ok(water_closet) => {
                 if !water_closet.is_available {
-                    robot_simulator_services::leaving_opening_door(water_closet, &mut leave_message.app_state.get_conn());
+                    robot_simulator_services::leaving_opening_door(
+                        water_closet,
+                        &mut leave_message.app_state.get_conn(),
+                    );
 
                     let mut rooms: Vec<String> = Vec::new();
                     // remove address
@@ -179,8 +193,8 @@ impl Handler<LeaveMessage> for Server {
                         }
                     }
                 };
-            },
-            Err(_) => self.send_message("UNKNOWN", leave_message.session_id)
+            }
+            Err(_) => self.send_message("UNKNOWN", leave_message.session_id),
         };
     }
 }
