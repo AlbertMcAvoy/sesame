@@ -40,24 +40,6 @@ pub struct ClientMessage {
     pub room: String,
 }
 
-/// List of available rooms
-pub struct ListRooms;
-
-impl actix::Message for ListRooms {
-    type Result = Vec<String>;
-}
-
-/// Join room, if room does not exists create new one.
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct Join {
-    /// Client ID
-    pub id: usize,
-
-    /// Room name
-    pub name: String,
-}
-
 /// `Server` manages rooms and responsible for coordinating session.
 ///
 /// Implementation is very naïve.
@@ -113,17 +95,12 @@ impl Handler<Connect> for Server {
     fn handle(&mut self, msg: Connect, _: &mut Context<Self>) -> Self::Result {
         println!("Someone joined");
 
-        // notify all users in same room
-        self.send_message("main", "Someone joined", 0);
-
         // register session with random id
         let id = self.rng.gen::<usize>();
         self.sessions.insert(id, msg.addr);
 
         // auto join session to main room
         self.rooms.entry("main".to_owned()).or_default().insert(id);
-
-        self.send_message("main", &format!("Total visitors 0"), 0);
 
         // send id back
         id
@@ -148,10 +125,6 @@ impl Handler<Disconnect> for Server {
                 }
             }
         }
-        // send message to other users
-        for room in rooms {
-            self.send_message(&room, "Someone disconnected", 0);
-        }
     }
 }
 
@@ -161,46 +134,5 @@ impl Handler<ClientMessage> for Server {
 
     fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
         self.send_message(&msg.room, msg.msg.as_str(), msg.id);
-    }
-}
-
-/// Handler for `ListRooms` message.
-impl Handler<ListRooms> for Server {
-    type Result = MessageResult<ListRooms>;
-
-    fn handle(&mut self, _: ListRooms, _: &mut Context<Self>) -> Self::Result {
-        let mut rooms = Vec::new();
-
-        for key in self.rooms.keys() {
-            rooms.push(key.to_owned())
-        }
-
-        MessageResult(rooms)
-    }
-}
-
-/// Join room, send disconnect message to old room
-/// send join message to new room
-impl Handler<Join> for Server {
-    type Result = ();
-
-    fn handle(&mut self, msg: Join, _: &mut Context<Self>) {
-        let Join { id, name } = msg;
-        let mut rooms = Vec::new();
-
-        // remove session from all rooms
-        for (n, sessions) in &mut self.rooms {
-            if sessions.remove(&id) {
-                rooms.push(n.to_owned());
-            }
-        }
-        // send message to other users
-        for room in rooms {
-            self.send_message(&room, "Someone disconnected", 0);
-        }
-
-        self.rooms.entry(name.clone()).or_default().insert(id);
-
-        self.send_message(&name, "Someone connected", id);
     }
 }

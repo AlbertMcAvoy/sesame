@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
     let pool = get_pool();
     let state = Arc::new(AppState { conn: pool });
 
-    // start chat server actor
+    // start server actor
     let server = server::Server::new().start();
 
     println!("Backend launched!");
@@ -52,7 +52,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::from(state.clone()))
             .app_data(web::Data::new(server.clone()))
-            .route("/ws", web::get().to(web_socket::chat_route))
+            .route("/ws", web::get().to(web_socket::ws_route))
     })
     .bind(("0.0.0.0", 8080))?
     .run()

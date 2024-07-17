@@ -4,19 +4,18 @@ use actix::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
-use crate::ws::{server, session};
+use crate::ws::{server::Server, session::WsSession};
 
-pub async fn chat_route(
+pub async fn ws_route(
     req: HttpRequest,
     stream: web::Payload,
-    srv: web::Data<Addr<server::Server>>,
+    srv: web::Data<Addr<Server>>,
 ) -> Result<HttpResponse, Error> {
     ws::start(
-        session::WsSession {
+        WsSession {
             id: 0,
             hb: Instant::now(),
             room: "main".to_owned(),
-            name: None,
             addr: srv.get_ref().clone(),
         },
         &req,
