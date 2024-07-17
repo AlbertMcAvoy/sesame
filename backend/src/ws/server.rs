@@ -7,6 +7,8 @@ use std::collections::{HashMap, HashSet};
 use rand::{rngs::ThreadRng, Rng};
 use actix::prelude::*;
 
+use crate::models::database::AppState;
+
 ///  server sends this messages to session
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -25,19 +27,25 @@ pub struct Connect {
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct Disconnect {
-    pub id: usize,
+    pub session_id: usize,
 }
 
-/// Send message to specific room
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct ClientMessage {
-    /// Id of the client session
-    pub id: usize,
-    /// Peer message
-    pub msg: String,
-    /// Room name
+pub struct ScanMessage {
+    pub session_id: usize,
+    pub toilet_id: usize,
     pub room: String,
+    pub appState: AppState
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct LeaveMessage {
+    pub session_id: usize,
+    pub toilet_id: usize,
+    pub room: String,
+    pub appState: AppState
 }
 
 /// `Server` manages rooms and responsible for coordinating session.
@@ -65,16 +73,9 @@ impl Server {
 }
 
 impl Server {
-    /// Send message to all users in the room
-    fn send_message(&self, room: &str, message: &str, skip_id: usize) {
-        if let Some(sessions) = self.rooms.get(room) {
-            for id in sessions {
-                if *id != skip_id {
-                    if let Some(addr) = self.sessions.get(id) {
-                        addr.do_send(Message(message.to_owned()));
-                    }
-                }
-            }
+    fn send_message(&self, message: &str, session_id: usize) {
+        if let Some(addr) = self.sessions.get(&session_id) {
+            addr.do_send(Message(message.to_owned()));
         }
     }
 }
@@ -117,10 +118,10 @@ impl Handler<Disconnect> for Server {
         let mut rooms: Vec<String> = Vec::new();
 
         // remove address
-        if self.sessions.remove(&msg.id).is_some() {
+        if self.sessions.remove(&msg.session_id).is_some() {
             // remove session from all rooms
             for (name, sessions) in &mut self.rooms {
-                if sessions.remove(&msg.id) {
+                if sessions.remove(&msg.session_id) {
                     rooms.push(name.to_owned());
                 }
             }
@@ -128,11 +129,19 @@ impl Handler<Disconnect> for Server {
     }
 }
 
-/// Handler for Message message.
-impl Handler<ClientMessage> for Server {
+/// Handler for ScanMessage.
+impl Handler<ScanMessage> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
-        self.send_message(&msg.room, msg.msg.as_str(), msg.id);
+    fn handle(&mut self, scanMessage: ScanMessage, _: &mut Context<Self>) {
+        
+    }
+}
+
+/// Handler for LeaveMessage.
+impl Handler<LeaveMessage> for Server {
+    type Result = ();
+
+    fn handle(&mut self, leaveMessage: LeaveMessage, _: &mut Context<Self>) {
     }
 }
