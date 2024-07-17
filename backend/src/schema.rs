@@ -86,6 +86,7 @@ diesel::table! {
         id -> Int4,
         group_id -> Int4,
         is_disabled -> Bool,
+        is_available -> Bool,
         is_door_opened -> Bool,
         is_door_locked -> Bool,
         clean_state -> CleanStates,
