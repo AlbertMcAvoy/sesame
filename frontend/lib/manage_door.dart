@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class ManageDoor extends StatelessWidget {
   final String title;
+  final String title2;
   final String imageUrl;
   final String link;
 
   ManageDoor({
     required this.title,
+    this.title2 = "",
     required this.imageUrl,
     required this.link,
   });
@@ -35,6 +37,18 @@ class ManageDoor extends StatelessWidget {
                 ),
               ),
             ),
+            if (title2.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30.0),
+                child: Text(
+                  title2,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xff003366),
+                  ),
+                ),
+              ),
             Container(
               alignment: Alignment.center,
               child: Image.asset(

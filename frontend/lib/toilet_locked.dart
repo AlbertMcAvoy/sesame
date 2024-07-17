@@ -11,6 +11,7 @@ class _ToiletLockedState extends State<ToiletLocked> {
     Widget build(BuildContext context) {
         return ManageDoor(
             title: "Terminé ?",
+            title2: "Maintenir le bouton pour ouvrir la porte",
             imageUrl: 'assets/images/toilet_locked.png',
             link: "Un problème ?",
         );

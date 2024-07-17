@@ -11,7 +11,7 @@ class _ToiletNotAvailableState extends State<ToiletNotAvailable> {
     Widget build(BuildContext context) {
         return ManageDoor(
             title: "Sanitaire pas disponible !",
-            imageUrl: 'assets/images/toilet_opened.png',
+            imageUrl: 'assets/images/toilet_not_available.png',
             link: "Scanner d'autres toilettes à proximité ?",
         );
     }
