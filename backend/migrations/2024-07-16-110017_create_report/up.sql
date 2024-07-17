@@ -1,6 +1,6 @@
-CREATE TYPE state AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
+CREATE TYPE states AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
 
-CREATE TYPE topic AS ENUM (
+CREATE TYPE topics AS ENUM (
     'DOOR',
     'TOILET',
     'SUPPLY',
@@ -14,8 +14,8 @@ CREATE TABLE
         user_id INTEGER NOT NULL REFERENCES users (id),
         water_closet_id INTEGER NOT NULL REFERENCES water_closets (id),
         datetime TIMESTAMP NOT NULL,
-        state state NOT NULL default 'TODO',
-        topic topic NOT NULL,
+        state states NOT NULL default 'TODO',
+        topic topics NOT NULL,
         comment TEXT NOT NULL
     );
 

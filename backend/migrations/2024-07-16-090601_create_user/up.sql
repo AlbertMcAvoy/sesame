@@ -1,11 +1,11 @@
-CREATE TYPE role AS ENUM ('USER', 'CLIENT', 'WORKER', 'ADMIN');
+CREATE TYPE roles AS ENUM ('USER', 'CLIENT', 'WORKER', 'ADMIN');
 
 CREATE TABLE
     users (
         id SERIAL PRIMARY KEY,
         mail VARCHAR NOT NULL,
         phone VARCHAR NOT NULL,
-        role role NOT NULL
+        role roles NOT NULL
     );
 
 INSERT INTO

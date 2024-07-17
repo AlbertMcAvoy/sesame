@@ -1,29 +1,25 @@
 // @generated automatically by Diesel CLI.
 
 pub mod sql_types {
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "action"))]
-    pub struct Action;
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "actions"))]
+    pub struct Actions;
 
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "clean_state"))]
-    pub struct CleanState;
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "clean_states"))]
+    pub struct CleanStates;
 
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "point", schema = "pg_catalog"))]
-    pub struct Point;
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "roles"))]
+    pub struct Roles;
 
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "role"))]
-    pub struct Role;
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "states"))]
+    pub struct States;
 
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "state"))]
-    pub struct State;
-
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "topic"))]
-    pub struct Topic;
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "topics"))]
+    pub struct Topics;
 }
 
 diesel::table! {
@@ -36,58 +32,55 @@ diesel::table! {
 
 diesel::table! {
     use diesel::sql_types::*;
-    use super::sql_types::Action;
+    use super::sql_types::Actions;
 
     histories (id) {
         id -> Int4,
         water_closet_id -> Int4,
         datetime -> Timestamp,
-        action -> Action,
+        action -> Actions,
     }
 }
 
 diesel::table! {
-    use diesel::sql_types::*;
-    use super::sql_types::Point;
-
     places (id) {
         id -> Int4,
         group_id -> Int4,
-        coordonates -> Point,
+        coordonates -> Varchar,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
-    use super::sql_types::State;
-    use super::sql_types::Topic;
+    use super::sql_types::States;
+    use super::sql_types::Topics;
 
     reports (id) {
         id -> Int4,
         user_id -> Int4,
         water_closet_id -> Int4,
         datetime -> Timestamp,
-        state -> State,
-        topic -> Topic,
+        state -> States,
+        topic -> Topics,
         comment -> Text,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
-    use super::sql_types::Role;
+    use super::sql_types::Roles;
 
     users (id) {
         id -> Int4,
         mail -> Varchar,
         phone -> Varchar,
-        role -> Role,
+        role -> Roles,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
-    use super::sql_types::CleanState;
+    use super::sql_types::CleanStates;
 
     water_closets (id) {
         id -> Int4,
@@ -95,7 +88,7 @@ diesel::table! {
         is_disabled -> Bool,
         is_door_opened -> Bool,
         is_door_locked -> Bool,
-        clean_state -> CleanState,
+        clean_state -> CleanStates,
     }
 }
 
