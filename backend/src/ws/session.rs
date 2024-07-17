@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, time::{Duration, Instant}};
+use std::time::{Duration, Instant};
 
 use actix::prelude::*;
 use actix_web_actors::ws;
@@ -138,23 +138,21 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
 
                 match action {
                      ActionSession::ClientScan => {
-                        match v[1].parse::<usize>() {
+                        match v[1].parse::<i32>() {
                             Ok(toilet_id) => self.addr.do_send(server::ScanMessage {
                                 session_id: self.id,
                                 toilet_id,
-                                room: self.room.clone(),
-                                appState: self.state.to_owned()
+                                app_state: self.state.to_owned()
                             }),
                             Err(_) => ctx.text(format!("!!! Invalid toilet id")),
                         }
                     },
                     ActionSession::ClientLeave => {
-                        match v[1].parse::<usize>() {
+                        match v[1].parse::<i32>() {
                             Ok(toilet_id) => self.addr.do_send(server::LeaveMessage {
                                 session_id: self.id,
                                 toilet_id,
-                                room: self.room.clone(),
-                                appState: self.state.to_owned()
+                                app_state: self.state.to_owned()
                             }),
                             Err(_) => ctx.text(format!("!!! Invalid toilet id")),
                         }
