@@ -1,4 +1,4 @@
-CREATE TYPE state AS ENUM (
+CREATE TYPE action AS ENUM (
     'DOOR_OPENING',
     'DOOR_CLOSING',
     'LOCK_OPENING',
@@ -22,6 +22,5 @@ VALUES
         1,
         1,
         '2024-07-16 14:30:00',
-        'DOOR',
-        'La porte des toilettes ne voulait plus s''ouvrir via l''application, j'' ai dû l''ouvrir manuellement.'
+        'QR_CODE_SCAN'
     );
