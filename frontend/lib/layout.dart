@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'pages/accueil.dart';
 
 class Layout extends StatefulWidget {
   @override
@@ -10,9 +11,8 @@ class _LayoutState extends State<Layout> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
+    MaterialApp(
+      home: ListToilette(),
     ),
     Text(
       'Index 1: Business',
@@ -47,6 +47,7 @@ class _LayoutState extends State<Layout> {
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
+      backgroundColor: Color(0xffE2E2E2),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
