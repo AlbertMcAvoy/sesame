@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import 'src/sign_in_button.dart';
 import 'layout.dart';
+import 'pages/returnOk.dart';
 
 /// The scopes required by this application.
 // #docregion Initialize
@@ -151,8 +152,11 @@ class _SignInSesameState extends State<SignInSesame> {
     final GoogleSignInAccount? user = _currentUser;
     if (user != null) {
       return MaterialApp(
-        home: Layout(),
-      );
+        routes: {
+          '/': (context) => Layout(),
+          '/returnOk': (context) => ReturnOk(),
+        },
+        initialRoute: '/');
       // The user is Authenticated
       // return Column(
       //   mainAxisAlignment: MainAxisAlignment.spaceAround,

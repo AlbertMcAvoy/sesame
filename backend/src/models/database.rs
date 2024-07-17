@@ -1,7 +1,7 @@
 use diesel::{r2d2::ConnectionManager, PgConnection};
 use r2d2::{Pool, PooledConnection};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppState {
     pub conn: Pool<ConnectionManager<PgConnection>>,
 }
