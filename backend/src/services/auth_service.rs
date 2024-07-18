@@ -6,6 +6,7 @@ use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
+use std::env;
 
 #[derive(Serialize)]
 struct Claims {
@@ -54,10 +55,12 @@ pub async fn authentificate(
         exp: expiration,
     };
 
+    let secret_key = env::var("JWT_SECRET_KEY").expect("SECRET_KEY must be set");
+
     let token = encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret("your_secret_key".as_ref()),
+        &EncodingKey::from_secret(secret_key.as_ref()),
     )
     .map_err(|err| format!("Error generating JWT: {}", err))?;
 
