@@ -37,6 +37,7 @@ pub struct WaterCloset {
 pub struct NewWaterCloset {
     pub group_id: i32,
     pub is_disabled: bool,
+    pub is_available: bool,
     pub is_door_opened: bool,
     pub is_door_locked: bool,
     pub clean_state: CleanStates,
