@@ -20,6 +20,14 @@ pub enum Roles {
 pub struct User {
     pub id: i32,
     pub mail: String,
-    pub phone: String,
+    pub phone: Option<String>,
+    pub role: Roles,
+}
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(table_name = crate::schema::users)]
+pub struct NewUser {
+    pub mail: String,
+    pub phone: Option<String>,
     pub role: Roles,
 }

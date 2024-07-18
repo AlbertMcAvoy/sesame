@@ -4,7 +4,7 @@ CREATE TABLE
     users (
         id SERIAL PRIMARY KEY,
         mail VARCHAR NOT NULL,
-        phone VARCHAR NOT NULL,
+        phone VARCHAR NULL,
         role roles NOT NULL
     );
 
