@@ -1,6 +1,7 @@
 use actix::Actor;
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
+use controllers::auth_controller::check_mail;
 use controllers::group_controller::{create_group, get_group, get_groups};
 use controllers::history_controller::{
     create_history, delete_history, get_histories, get_history, update_history,
@@ -68,6 +69,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::from(state.clone()))
             .app_data(web::Data::new(server.clone()))
             .route("/ws", web::get().to(web_socket::ws_route))
+            .service(web::scope("/auth").route("", web::post().to(check_mail)))
             .service(
                 web::scope("/groups")
                     .route("", web::post().to(create_group))
