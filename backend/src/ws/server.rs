@@ -14,13 +14,6 @@ use crate::{
 };
 use diesel::{prelude::*, result::Error};
 
-use crate::{
-    models::{database::AppState, water_closet::WaterCloset},
-    schema::water_closets::{dsl::water_closets, id},
-    services::robot_simulator_services,
-};
-use diesel::{prelude::*, result::Error};
-
 ///  server sends this messages to session
 #[derive(Message)]
 #[rtype(result = "()")]
