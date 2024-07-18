@@ -152,6 +152,7 @@ class _SignInSesameState extends State<SignInSesame> {
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
   createUser(String email) async {
+    print(email);
     final response = await http.post(
       Uri.parse('http://localhost:8080/auth'),
       headers: <String, String>{
@@ -161,7 +162,8 @@ class _SignInSesameState extends State<SignInSesame> {
         'mail': email,
       }),
     );
-    if (response.statusCode == 201) {
+    print(jsonDecode(response.body));
+    if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
     localStorage.setItem('auth', jsonDecode(response.body));
@@ -176,10 +178,10 @@ class _SignInSesameState extends State<SignInSesame> {
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
     if (user != null || localStorage.getItem('auth') != null) {
-      if(user != null) {
+      if (user != null) {
         createUser(user.email);
-        
       }
+
       return MaterialApp(routes: {
         '/': (context) => Layout(),
         '/returnOk': (context) => ReturnOk(),
