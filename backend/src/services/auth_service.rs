@@ -13,7 +13,10 @@ struct Claims {
     exp: usize,
 }
 
-pub async fn check_mail(state: &web::Data<AppState>, mail_input: &str) -> Result<String, String> {
+pub async fn authentificate(
+    state: &web::Data<AppState>,
+    mail_input: &str,
+) -> Result<String, String> {
     let mut conn = AppState::get_conn(&state);
 
     let user_result = users

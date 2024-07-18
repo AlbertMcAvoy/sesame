@@ -1,7 +1,7 @@
 use actix::Actor;
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use controllers::auth_controller::check_mail;
+use controllers::auth_controller::authentification;
 use controllers::group_controller::{
     create_group, delete_group, get_group, get_groups, update_group,
 };
@@ -17,7 +17,7 @@ use controllers::report_controller::{
 use controllers::user_controller::{create_user, delete_user, get_user, get_users, update_user};
 use controllers::water_closet_controller::{
     create_water_closet, delete_water_closet, get_water_closet, get_water_closets,
-    update_water_closet,
+    get_water_closets_by_group, update_water_closet,
 };
 use controllers::web_socket;
 use diesel::prelude::*;
@@ -71,15 +71,18 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::from(state.clone()))
             .app_data(web::Data::new(server.clone()))
             .route("/ws", web::get().to(web_socket::ws_route))
-            .service(web::scope("/auth").route("", web::post().to(check_mail)))
+            .service(web::scope("/auth").route("", web::post().to(authentification)))
             .service(
                 web::scope("/groups")
                     .route("", web::post().to(create_group))
                     .route("", web::get().to(get_groups))
                     .route("/{id}", web::get().to(get_group))
                     .route("/{id}", web::put().to(update_group))
-                    .route("/{id}", web::delete().to(delete_group)),
-                /*.route("/{post_id}/comments", web::post().to(create_post)), */
+                    .route("/{id}", web::delete().to(delete_group))
+                    .route(
+                        "/{id}/waterclosets",
+                        web::get().to(get_water_closets_by_group),
+                    ),
             )
             .service(
                 web::scope("/histories")
