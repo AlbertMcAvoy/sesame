@@ -74,10 +74,10 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/groups")
                     .route("", web::post().to(create_group))
                     .route("", web::get().to(get_groups))
-                    .route("/{id}", web::get().to(get_group)),
-                /*.route("/{id}", web::put().to(update_post))
-                .route("/{id}", web::delete().to(delete_post))
-                .route("/{post_id}/comments", web::post().to(create_post)), */
+                    .route("/{id}", web::get().to(get_group))
+                    .route("/{id}", web::put().to(update_group))
+                    .route("/{id}", web::delete().to(delete_group)),
+                /*.route("/{post_id}/comments", web::post().to(create_post)), */
             )
             .service(
                 web::scope("/histories")
