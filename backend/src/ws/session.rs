@@ -155,16 +155,20 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                             2 => {
                                 match v[1].parse::<i32>() {
                                     Ok(toilet_id) => {
-                                        self.addr.do_send(server::LeaveMessage {
+                                        match self.addr.try_send(server::LeaveMessage {
                                             session_id: self.id,
                                             toilet_id,
                                             app_state: self.state.to_owned()
-                                        });
-                                        ctx.close(Some(CloseReason {
-                                            code: CloseCode::Normal,
-                                            description: Some("END".to_string()),
-                                        }));
-                                        ctx.stop();
+                                        }) {
+                                            Ok(_) => {
+                                                ctx.close(Some(CloseReason {
+                                                    code: CloseCode::Normal,
+                                                    description: Some("END".to_string()),
+                                                }));
+                                                ctx.stop();
+                                            },
+                                            Err(_) => {}
+                                        }
                                     },
                                     Err(_) => ctx.text(format!("!!! Invalid toilet id")),
                                 }
