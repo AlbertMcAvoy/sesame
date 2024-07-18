@@ -7,7 +7,8 @@ use std::collections::{HashMap, HashSet};
 use rand::{rngs::ThreadRng, Rng};
 use actix::prelude::*;
 
-use crate::models::database::AppState;
+use diesel::{prelude::*, result::Error};
+use crate::{models::{database::AppState, water_closet::WaterCloset}, schema::water_closets::{dsl::water_closets, id, is_available, is_door_locked, is_door_opened}};
 
 ///  server sends this messages to session
 #[derive(Message)]
@@ -34,18 +35,16 @@ pub struct Disconnect {
 #[rtype(result = "()")]
 pub struct ScanMessage {
     pub session_id: usize,
-    pub toilet_id: usize,
-    pub room: String,
-    pub appState: AppState
+    pub toilet_id: i32,
+    pub app_state: AppState
 }
 
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct LeaveMessage {
     pub session_id: usize,
-    pub toilet_id: usize,
-    pub room: String,
-    pub appState: AppState
+    pub toilet_id: i32,
+    pub app_state: AppState
 }
 
 /// `Server` manages rooms and responsible for coordinating session.
@@ -97,14 +96,14 @@ impl Handler<Connect> for Server {
         println!("Someone joined");
 
         // register session with random id
-        let id = self.rng.gen::<usize>();
-        self.sessions.insert(id, msg.addr);
+        let session_id = self.rng.gen::<usize>();
+        self.sessions.insert(session_id, msg.addr);
 
         // auto join session to main room
-        self.rooms.entry("main".to_owned()).or_default().insert(id);
+        self.rooms.entry("main".to_owned()).or_default().insert(session_id);
 
         // send id back
-        id
+        session_id
     }
 }
 
@@ -133,8 +132,24 @@ impl Handler<Disconnect> for Server {
 impl Handler<ScanMessage> for Server {
     type Result = ();
 
-    fn handle(&mut self, scanMessage: ScanMessage, _: &mut Context<Self>) {
-        
+    fn handle(&mut self, scan_message: ScanMessage, _: &mut Context<Self>) {
+        let water_closet_result: Result<WaterCloset, Error> = water_closets.filter(id.eq(scan_message.toilet_id)).first::<WaterCloset>(&mut scan_message.app_state.get_conn());
+        match water_closet_result {
+            Ok(water_closet) => {
+                let res = if water_closet.is_available {
+                    let _ = diesel::update(water_closets.find(water_closet.id))
+                        .set((
+                            id.eq(&water_closet.id),
+                            is_available.eq(false),
+                            is_door_opened.eq(false),
+                            is_door_locked.eq(false)
+                        ));
+                    "AVAILABLE"
+                } else { "UNAVAILABLE" };
+                self.send_message(res, scan_message.session_id)
+            },
+            Err(_) => self.send_message("UNKNOWN", scan_message.session_id)
+        };
     }
 }
 
@@ -142,6 +157,32 @@ impl Handler<ScanMessage> for Server {
 impl Handler<LeaveMessage> for Server {
     type Result = ();
 
-    fn handle(&mut self, leaveMessage: LeaveMessage, _: &mut Context<Self>) {
+    fn handle(&mut self, leave_message: LeaveMessage, _: &mut Context<Self>) {
+        let water_closet_result: Result<WaterCloset, Error> = water_closets.filter(id.eq(leave_message.toilet_id)).first::<WaterCloset>(&mut leave_message.app_state.get_conn());
+        match water_closet_result {
+            Ok(water_closet) => {
+                if !water_closet.is_available {
+                    let _ = diesel::update(water_closets.find(water_closet.id))
+                        .set((
+                            id.eq(&water_closet.id),
+                            is_available.eq(true),
+                            is_door_opened.eq(false),
+                            is_door_locked.eq(false)
+                        ));
+
+                    let mut rooms: Vec<String> = Vec::new();
+                    // remove address
+                    if self.sessions.remove(&leave_message.session_id).is_some() {
+                        // remove session from all rooms
+                        for (name, sessions) in &mut self.rooms {
+                            if sessions.remove(&leave_message.session_id) {
+                                rooms.push(name.to_owned());
+                            }
+                        }
+                    }
+                };
+            },
+            Err(_) => self.send_message("UNKNOWN", leave_message.session_id)
+        };
     }
 }
