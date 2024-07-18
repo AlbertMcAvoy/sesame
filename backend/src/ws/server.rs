@@ -146,7 +146,6 @@ impl Handler<ScanMessage> for Server {
             .first::<WaterCloset>(&mut scan_message.app_state.get_conn());
         match water_closet_result {
             Ok(water_closet) => {
-                println!("{:?}", water_closet.is_available);
                 if water_closet.is_available {
                     self.send_message("AVAILABLE", scan_message.session_id);
                     match robot_simulator_services::scaning_opening_door(
