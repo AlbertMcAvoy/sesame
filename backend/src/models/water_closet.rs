@@ -2,7 +2,7 @@ use crate::models::group::Group;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[ExistingTypePath = "crate::schema::sql_types::CleanStates"]
 pub enum CleanStates {
     #[db_rename = "CLEANED"]
@@ -25,6 +25,17 @@ pub struct WaterCloset {
     pub id: i32,
     pub group_id: i32,
     pub is_available: bool,
+    pub is_disabled: bool,
+    pub is_door_opened: bool,
+    pub is_door_locked: bool,
+    pub clean_state: CleanStates,
+}
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(belongs_to(Group))]
+#[diesel(table_name = crate::schema::water_closets)]
+pub struct NewWaterCloset {
+    pub group_id: i32,
     pub is_disabled: bool,
     pub is_door_opened: bool,
     pub is_door_locked: bool,

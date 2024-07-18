@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[ExistingTypePath = "crate::schema::sql_types::States"]
 pub enum States {
     #[db_rename = "TODO"]
@@ -15,7 +15,7 @@ pub enum States {
     Done,
 }
 
-#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[ExistingTypePath = "crate::schema::sql_types::Topics"]
 pub enum Topics {
     #[db_rename = "DOOR"]
@@ -39,6 +39,19 @@ pub enum Topics {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Report {
     pub id: i32,
+    pub user_id: i32,
+    pub water_closet_id: i32,
+    pub datetime: NaiveDateTime,
+    pub state: States,
+    pub topic: Topics,
+    pub comment: String,
+}
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(belongs_to(User))]
+#[diesel(belongs_to(WaterCloset))]
+#[diesel(table_name = crate::schema::reports)]
+pub struct NewReport {
     pub user_id: i32,
     pub water_closet_id: i32,
     pub datetime: NaiveDateTime,

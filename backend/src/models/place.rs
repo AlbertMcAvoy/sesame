@@ -13,3 +13,11 @@ pub struct Place {
     pub group_id: i32,
     pub coordonates: String,
 }
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(belongs_to(Group))]
+#[diesel(table_name = crate::schema::places)]
+pub struct NewPlace {
+    pub group_id: i32,
+    pub coordonates: String,
+}
