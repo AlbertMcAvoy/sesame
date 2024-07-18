@@ -158,7 +158,7 @@ class _SignInSesameState extends State<SignInSesame> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'email': email,
+        'mail': email,
       }),
     );
     if (response.statusCode == 201) {
