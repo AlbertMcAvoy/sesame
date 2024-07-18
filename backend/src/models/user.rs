@@ -31,3 +31,11 @@ pub struct NewUser {
     pub phone: Option<String>,
     pub role: Roles,
 }
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(table_name = crate::schema::users)]
+pub struct NewUser {
+    pub mail: String,
+    pub phone: String,
+    pub role: Roles,
+}
