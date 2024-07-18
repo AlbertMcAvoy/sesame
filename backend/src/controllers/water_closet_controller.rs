@@ -56,3 +56,14 @@ pub async fn delete_water_closet(
             .body(format!("Failed to delete water closet: {}", err)),
     }
 }
+
+pub async fn get_water_closets_by_group(
+    state: web::Data<AppState>,
+    group_id: web::Path<i32>,
+) -> impl Responder {
+    match water_closet_service::get_water_closets_by_group_id(state, *group_id).await {
+        Ok(water_closets) => HttpResponse::Ok().json(water_closets),
+        Err(err) => HttpResponse::InternalServerError()
+            .body(format!("Failed to get water closets: {}", err)),
+    }
+}

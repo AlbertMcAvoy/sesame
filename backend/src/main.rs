@@ -17,7 +17,7 @@ use controllers::report_controller::{
 use controllers::user_controller::{create_user, delete_user, get_user, get_users, update_user};
 use controllers::water_closet_controller::{
     create_water_closet, delete_water_closet, get_water_closet, get_water_closets,
-    update_water_closet,
+    get_water_closets_by_group, update_water_closet,
 };
 use controllers::web_socket;
 use diesel::prelude::*;
@@ -78,8 +78,11 @@ async fn main() -> std::io::Result<()> {
                     .route("", web::get().to(get_groups))
                     .route("/{id}", web::get().to(get_group))
                     .route("/{id}", web::put().to(update_group))
-                    .route("/{id}", web::delete().to(delete_group)),
-                /*.route("/{post_id}/comments", web::post().to(create_post)), */
+                    .route("/{id}", web::delete().to(delete_group))
+                    .route(
+                        "/{id}/waterclosets",
+                        web::get().to(get_water_closets_by_group),
+                    ),
             )
             .service(
                 web::scope("/histories")
