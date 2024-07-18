@@ -1,23 +1,19 @@
 class Group {
   final int id;
   final String name;
-  final int userId;
+  final int placeId;
 
-  Group({required this.id, required this.name, required this.userId});
+  Group({
+    required this.id,
+    required this.name,
+    required this.placeId,
+  });
 
   factory Group.fromJson(Map<String, dynamic> json) {
     return Group(
-      id: json['id'],
-      name: json['name'],
-      userId: json['user_id'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Unknown',
+      placeId: json['placeId'] ?? 0,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'user_id': userId,
-    };
   }
 }

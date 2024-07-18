@@ -1,34 +1,30 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/group.dart';
+import '../../models/place.dart';
 
 class GroupService {
-  final String baseUrl = 'http://your-api-url.com';
+  static const String baseUrl = 'http://localhost:8080';
 
   Future<List<Group>> fetchGroups() async {
     final response = await http.get(Uri.parse('$baseUrl/groups'));
 
     if (response.statusCode == 200) {
-      Iterable list = json.decode(response.body);
-      return list.map((model) => Group.fromJson(model)).toList();
+      List<dynamic> data = json.decode(response.body);
+      return data.map((groupData) => Group.fromJson(groupData)).toList();
     } else {
       throw Exception('Failed to load groups');
     }
   }
 
-  Future<Group> createGroup(Group group) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/groups'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(group.toJson()),
-    );
+  Future<Place> fetchPlace(int groupId) async {
+    final response = await http.get(Uri.parse('$baseUrl/places/$groupId'));
 
-    if (response.statusCode == 201) {
-      return Group.fromJson(jsonDecode(response.body));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return Place.fromJson(data);
     } else {
-      throw Exception('Failed to create group');
+      throw Exception('Failed to load place');
     }
   }
 }
