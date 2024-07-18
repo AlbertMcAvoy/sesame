@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert' show json;
 
@@ -6,10 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-
+import 'dart:convert';
 import 'src/sign_in_button.dart';
 import 'layout.dart';
 import 'pages/returnOk.dart';
+import 'package:localstorage/localstorage.dart';
 
 /// The scopes required by this application.
 // #docregion Initialize
@@ -26,6 +26,7 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 // #enddocregion Initialize
 
 void main() {
+  initLocalStorage();
   runApp(
     const MaterialApp(
       title: 'Sesame',
@@ -148,15 +149,29 @@ class _SignInSesameState extends State<SignInSesame> {
 
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
+  // Future<http.Response> createUser(String email) {
+  //   return http.post(
+  //     Uri.parse('http://localhost'),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: jsonEncode(<String, String>{
+  //       'email': email,
+  //     }),
+  //   );
+  // }
+
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
-    if (user != null) {
-      return MaterialApp(
-        routes: {
-          '/': (context) => Layout(),
-          '/returnOk': (context) => ReturnOk(),
-        },
-        initialRoute: '/');
+    if (user != null || localStorage.getItem('auth') != null) {
+      if(user != null) {
+        // var token = createUser(user.email);
+        // localStorage.setItem('auth', token as String);
+      }
+      return MaterialApp(routes: {
+        '/': (context) => Layout(),
+        '/returnOk': (context) => ReturnOk(),
+      }, initialRoute: '/');
       // The user is Authenticated
       // return Column(
       //   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -195,29 +210,27 @@ class _SignInSesameState extends State<SignInSesame> {
     } else {
       // The user is NOT Authenticated
       return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Sesame',
-            style: TextStyle(
-              color: Colors.white,
+        appBar: AppBar(
+          title: Center(
+            child: Text(
+              'Sesame',
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
+          backgroundColor: Color(0xff003366),
         ),
-        backgroundColor: Color(0xff003366),
-      ),
-      body:
-      Center(
-        child:
-        Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          buildSignInButton(
-            onPressed: _handleSignIn,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              buildSignInButton(
+                onPressed: _handleSignIn,
+              ),
+            ],
           ),
-        ],
-      ),
-      ),
+        ),
       );
       // return Column(
       //   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -240,8 +253,8 @@ class _SignInSesameState extends State<SignInSesame> {
         //   title: const Text('Google Sign In'),
         // ),
         body: ConstrainedBox(
-          constraints: const BoxConstraints.expand(),
-          child: _buildBody(),
-        ));
+      constraints: const BoxConstraints.expand(),
+      child: _buildBody(),
+    ));
   }
 }
