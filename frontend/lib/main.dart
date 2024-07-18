@@ -153,7 +153,7 @@ class _SignInSesameState extends State<SignInSesame> {
 
   createUser(String email) async {
     final response = await http.post(
-      Uri.parse('http://localhost'),
+      Uri.parse('http://localhost:8080/auth'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
