@@ -13,3 +13,11 @@ pub struct Group {
     pub user_id: i32,
     pub name: String,
 }
+
+#[derive(Insertable, PartialEq, Debug, Serialize, Deserialize)]
+#[diesel(belongs_to(User))]
+#[diesel(table_name = crate::schema::groups)]
+pub struct NewGroup {
+    pub user_id: i32,
+    pub name: String,
+}
