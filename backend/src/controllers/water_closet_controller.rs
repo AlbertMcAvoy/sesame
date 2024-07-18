@@ -108,18 +108,3 @@ pub async fn delete_water_closet(
             .body(format!("Failed to delete water closet: {}", err)),
     }
 }
-
-// Routes
-pub fn init_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::resource("/water_closets")
-            .route(web::post().to(create_water_closet))
-            .route(web::get().to(get_water_closets)),
-    );
-    cfg.service(
-        web::resource("/water_closets/{id}")
-            .route(web::get().to(get_water_closet))
-            .route(web::put().to(update_water_closet))
-            .route(web::delete().to(delete_water_closet)),
-    );
-}
