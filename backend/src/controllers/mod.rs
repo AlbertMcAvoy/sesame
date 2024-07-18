@@ -1,3 +1,4 @@
+pub mod auth_controller;
 pub mod group_controller;
 pub mod history_controller;
 pub mod place_controller;

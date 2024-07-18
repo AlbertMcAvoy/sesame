@@ -73,7 +73,7 @@ diesel::table! {
     users (id) {
         id -> Int4,
         mail -> Varchar,
-        phone -> Varchar,
+        phone -> Nullable<Varchar>,
         role -> Roles,
     }
 }
