@@ -2,7 +2,9 @@ use actix::Actor;
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use controllers::auth_controller::check_mail;
-use controllers::group_controller::{create_group, get_group, get_groups};
+use controllers::group_controller::{
+    create_group, delete_group, get_group, get_groups, update_group,
+};
 use controllers::history_controller::{
     create_history, delete_history, get_histories, get_history, update_history,
 };
