@@ -7,6 +7,9 @@ use std::collections::{HashMap, HashSet};
 use rand::{rngs::ThreadRng, Rng};
 use actix::prelude::*;
 
+use diesel::{prelude::*, result::Error};
+use crate::{models::{database::AppState, water_closet::WaterCloset}, schema::water_closets::{dsl::water_closets, id, is_available, is_door_locked, is_door_opened}};
+
 ///  server sends this messages to session
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -25,19 +28,23 @@ pub struct Connect {
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct Disconnect {
-    pub id: usize,
+    pub session_id: usize,
 }
 
-/// Send message to specific room
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct ClientMessage {
-    /// Id of the client session
-    pub id: usize,
-    /// Peer message
-    pub msg: String,
-    /// Room name
-    pub room: String,
+pub struct ScanMessage {
+    pub session_id: usize,
+    pub toilet_id: i32,
+    pub app_state: AppState
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct LeaveMessage {
+    pub session_id: usize,
+    pub toilet_id: i32,
+    pub app_state: AppState
 }
 
 /// `Server` manages rooms and responsible for coordinating session.
@@ -65,16 +72,9 @@ impl Server {
 }
 
 impl Server {
-    /// Send message to all users in the room
-    fn send_message(&self, room: &str, message: &str, skip_id: usize) {
-        if let Some(sessions) = self.rooms.get(room) {
-            for id in sessions {
-                if *id != skip_id {
-                    if let Some(addr) = self.sessions.get(id) {
-                        addr.do_send(Message(message.to_owned()));
-                    }
-                }
-            }
+    fn send_message(&self, message: &str, session_id: usize) {
+        if let Some(addr) = self.sessions.get(&session_id) {
+            addr.do_send(Message(message.to_owned()));
         }
     }
 }
@@ -96,14 +96,14 @@ impl Handler<Connect> for Server {
         println!("Someone joined");
 
         // register session with random id
-        let id = self.rng.gen::<usize>();
-        self.sessions.insert(id, msg.addr);
+        let session_id = self.rng.gen::<usize>();
+        self.sessions.insert(session_id, msg.addr);
 
         // auto join session to main room
-        self.rooms.entry("main".to_owned()).or_default().insert(id);
+        self.rooms.entry("main".to_owned()).or_default().insert(session_id);
 
         // send id back
-        id
+        session_id
     }
 }
 
@@ -117,10 +117,10 @@ impl Handler<Disconnect> for Server {
         let mut rooms: Vec<String> = Vec::new();
 
         // remove address
-        if self.sessions.remove(&msg.id).is_some() {
+        if self.sessions.remove(&msg.session_id).is_some() {
             // remove session from all rooms
             for (name, sessions) in &mut self.rooms {
-                if sessions.remove(&msg.id) {
+                if sessions.remove(&msg.session_id) {
                     rooms.push(name.to_owned());
                 }
             }
@@ -128,11 +128,61 @@ impl Handler<Disconnect> for Server {
     }
 }
 
-/// Handler for Message message.
-impl Handler<ClientMessage> for Server {
+/// Handler for ScanMessage.
+impl Handler<ScanMessage> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
-        self.send_message(&msg.room, msg.msg.as_str(), msg.id);
+    fn handle(&mut self, scan_message: ScanMessage, _: &mut Context<Self>) {
+        let water_closet_result: Result<WaterCloset, Error> = water_closets.filter(id.eq(scan_message.toilet_id)).first::<WaterCloset>(&mut scan_message.app_state.get_conn());
+        match water_closet_result {
+            Ok(water_closet) => {
+                let res = if water_closet.is_available {
+                    let _ = diesel::update(water_closets.find(water_closet.id))
+                        .set((
+                            id.eq(&water_closet.id),
+                            is_available.eq(false),
+                            is_door_opened.eq(false),
+                            is_door_locked.eq(false)
+                        ));
+                    "AVAILABLE"
+                } else { "UNAVAILABLE" };
+                self.send_message(res, scan_message.session_id)
+            },
+            Err(_) => self.send_message("UNKNOWN", scan_message.session_id)
+        };
+    }
+}
+
+/// Handler for LeaveMessage.
+impl Handler<LeaveMessage> for Server {
+    type Result = ();
+
+    fn handle(&mut self, leave_message: LeaveMessage, _: &mut Context<Self>) {
+        let water_closet_result: Result<WaterCloset, Error> = water_closets.filter(id.eq(leave_message.toilet_id)).first::<WaterCloset>(&mut leave_message.app_state.get_conn());
+        match water_closet_result {
+            Ok(water_closet) => {
+                if !water_closet.is_available {
+                    let _ = diesel::update(water_closets.find(water_closet.id))
+                        .set((
+                            id.eq(&water_closet.id),
+                            is_available.eq(true),
+                            is_door_opened.eq(false),
+                            is_door_locked.eq(false)
+                        ));
+
+                    let mut rooms: Vec<String> = Vec::new();
+                    // remove address
+                    if self.sessions.remove(&leave_message.session_id).is_some() {
+                        // remove session from all rooms
+                        for (name, sessions) in &mut self.rooms {
+                            if sessions.remove(&leave_message.session_id) {
+                                rooms.push(name.to_owned());
+                            }
+                        }
+                    }
+                };
+            },
+            Err(_) => self.send_message("UNKNOWN", leave_message.session_id)
+        };
     }
 }

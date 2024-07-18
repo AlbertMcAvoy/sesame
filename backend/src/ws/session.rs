@@ -3,6 +3,8 @@ use std::time::{Duration, Instant};
 use actix::prelude::*;
 use actix_web_actors::ws;
 
+use crate::models::database::AppState;
+
 use super::server;
 
 /// How often heartbeat pings are sent
@@ -10,6 +12,22 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
+
+pub enum ActionSession {
+    ClientScan,
+    ClientLeave,
+    Unkown
+}
+
+impl ActionSession {
+    fn matching(pattern: &str) -> Self {
+        match pattern {
+            "client-scan" => ActionSession::ClientScan,
+            "client-leave" => ActionSession::ClientLeave,
+            _ => ActionSession::Unkown
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct WsSession {
@@ -25,6 +43,9 @@ pub struct WsSession {
 
     /// server
     pub addr: Addr<server::Server>,
+
+    /// AppState
+    pub state: AppState,
 }
 
 impl WsSession {
@@ -39,7 +60,7 @@ impl WsSession {
                 println!("Websocket Client heartbeat failed, disconnecting!");
 
                 // notify server
-                act.addr.do_send(server::Disconnect { id: act.id });
+                act.addr.do_send(server::Disconnect { session_id: act.id });
 
                 // stop actor
                 ctx.stop();
@@ -86,17 +107,8 @@ impl Actor for WsSession {
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         // notify server
-        self.addr.do_send(server::Disconnect { id: self.id });
+        self.addr.do_send(server::Disconnect { session_id: self.id });
         Running::Stop
-    }
-}
-
-/// Handle messages from server, we simply send it to peer websocket
-impl Handler<server::Message> for WsSession {
-    type Result = ();
-
-    fn handle(&mut self, msg: server::Message, ctx: &mut Self::Context) {
-        ctx.text(msg.0);
     }
 }
 
@@ -121,12 +133,32 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
             }
             ws::Message::Text(text) => {
                 let m = text.trim();
-                // send message to server
-                self.addr.do_send(server::ClientMessage {
-                    id: self.id,
-                    msg: m.to_owned(),
-                    room: self.room.clone(),
-                })
+                let v: Vec<&str> = m.splitn(2, ' ').collect();
+                let action = ActionSession::matching(v[0]);
+
+                match action {
+                     ActionSession::ClientScan => {
+                        match v[1].parse::<i32>() {
+                            Ok(toilet_id) => self.addr.do_send(server::ScanMessage {
+                                session_id: self.id,
+                                toilet_id,
+                                app_state: self.state.to_owned()
+                            }),
+                            Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                        }
+                    },
+                    ActionSession::ClientLeave => {
+                        match v[1].parse::<i32>() {
+                            Ok(toilet_id) => self.addr.do_send(server::LeaveMessage {
+                                session_id: self.id,
+                                toilet_id,
+                                app_state: self.state.to_owned()
+                            }),
+                            Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                        }
+                    },
+                    ActionSession::Unkown => ctx.text(format!("!!! unknown command: {m:?}")),
+                }
             }
             ws::Message::Binary(_) => println!("Unexpected binary"),
             ws::Message::Close(reason) => {
@@ -138,5 +170,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
             }
             ws::Message::Nop => (),
         }
+    }
+}
+
+/// Handle messages from server, we simply send it to peer websocket
+impl Handler<server::Message> for WsSession {
+    type Result = ();
+
+    fn handle(&mut self, msg: server::Message, ctx: &mut Self::Context) {
+        ctx.text(msg.0);
     }
 }
