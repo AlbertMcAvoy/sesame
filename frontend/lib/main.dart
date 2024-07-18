@@ -32,7 +32,7 @@ void main() {
     MaterialApp(
       title: 'Sesame',
       debugShowCheckedModeBanner: false,
-      home: WebSocketScreen(), /*SignInSesame()*/ /** TODO: appeler cette classe dans le layout quand il sera pret */
+      home: SignInSesame(), /*WebSocketScreen()*/ /** TODO: appeler cette classe dans le layout quand il sera pret */
     ),
   );
 }
@@ -151,24 +151,34 @@ class _SignInSesameState extends State<SignInSesame> {
 
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
-  // Future<http.Response> createUser(String email) {
-  //   return http.post(
-  //     Uri.parse('http://localhost'),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode(<String, String>{
-  //       'email': email,
-  //     }),
-  //   );
-  // }
+  createUser(String email) async {
+    final response = await http.post(
+      Uri.parse('http://localhost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+      }),
+    );
+    if (response.statusCode == 201) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    localStorage.setItem('auth', jsonDecode(response.body));
+    return;
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Failed to create album.');
+  }
+  }
 
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
     if (user != null || localStorage.getItem('auth') != null) {
       if(user != null) {
-        // var token = createUser(user.email);
-        // localStorage.setItem('auth', token as String);
+        createUser(user.email);
+        
       }
       return MaterialApp(routes: {
         '/': (context) => Layout(),
