@@ -92,3 +92,17 @@ pub async fn delete_water_closet(
         .map(|_| ())
         .map_err(|err| format!("Failed to delete water closet: {}", err))
 }
+
+pub async fn get_water_closets_by_group_id(
+    state: web::Data<AppState>,
+    id_group: i32,
+) -> Result<Vec<WaterCloset>, diesel::result::Error> {
+    let mut conn = state
+        .conn
+        .get()
+        .expect("Failed to get a connection from the pool.");
+
+    water_closets
+        .filter(crate::schema::water_closets::group_id.eq(id_group))
+        .load::<WaterCloset>(&mut conn)
+}
