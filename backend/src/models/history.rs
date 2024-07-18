@@ -1,8 +1,9 @@
+use crate::models::water_closet::WaterCloset;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(diesel_derive_enum::DbEnum, Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[ExistingTypePath = "crate::schema::sql_types::Actions"]
 pub enum Actions {
     #[db_rename = "DOOR_OPENING"]
@@ -19,7 +20,10 @@ pub enum Actions {
     NFCScan,
 }
 
-#[derive(Queryable, Selectable, Identifiable, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(
+    Queryable, Selectable, Identifiable, Associations, PartialEq, Debug, Serialize, Deserialize,
+)]
+#[diesel(belongs_to(WaterCloset))]
 #[diesel(table_name = crate::schema::histories)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct History {
@@ -29,7 +33,9 @@ pub struct History {
     pub action: Actions,
 }
 
-#[derive(Insertable, Deserialize, Serialize)]
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(belongs_to(WaterCloset))]
 #[diesel(table_name = crate::schema::histories)]
 pub struct NewHistory {
     pub water_closet_id: i32,
