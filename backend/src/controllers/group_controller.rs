@@ -56,3 +56,41 @@ pub async fn get_group(state: web::Data<AppState>, group_id: web::Path<i32>) -> 
         Err(err) => HttpResponse::NotFound().body(format!("Group not found: {}", err)),
     }
 }
+
+pub async fn update_group(
+    state: web::Data<AppState>,
+    group_id: web::Path<i32>,
+    updated_group: web::Json<NewGroup>,
+) -> impl Responder {
+    let mut conn = state
+        .conn
+        .get()
+        .expect("Failed to get a connection from the pool.");
+
+    match diesel::update(groups.find(*group_id))
+        .set((
+            user_id.eq(&updated_group.user_id),
+            name.eq(&updated_group.name),
+        ))
+        .execute(&mut conn)
+    {
+        Ok(_) => HttpResponse::Ok().json(updated_group.into_inner()),
+        Err(err) => {
+            HttpResponse::InternalServerError().body(format!("Failed to update group: {}", err))
+        }
+    }
+}
+
+pub async fn delete_group(state: web::Data<AppState>, group_id: web::Path<i32>) -> impl Responder {
+    let mut conn = state
+        .conn
+        .get()
+        .expect("Failed to get a connection from the pool.");
+
+    match diesel::delete(groups.find(*group_id)).execute(&mut conn) {
+        Ok(_) => HttpResponse::Ok().body("Group deleted"),
+        Err(err) => {
+            HttpResponse::InternalServerError().body(format!("Failed to delete group: {}", err))
+        }
+    }
+}
