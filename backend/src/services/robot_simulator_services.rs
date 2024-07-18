@@ -30,7 +30,7 @@ pub fn scaning_opening_door(water_closet: WaterCloset, scan_mode: &str, conn: &m
                 .execute(conn);
             let _ = diesel::insert_into(histories).values(generate_history(&water_closet, Actions::LockClosing))
                 .execute(conn);
-            Ok(String::from("DONE"))
+            Ok(String::from("ENTERED"))
         },
         Err(_) => Err(String::from("UNKNOWN"))
     }

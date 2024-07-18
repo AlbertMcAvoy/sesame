@@ -157,7 +157,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                                     app_state: self.state.to_owned(),
                                 }) {
                                     Ok(_) => {
-                                        ctx.text(format!("ENDED"));
+                                        ctx.text(format!("LEFT"));
                                         ctx.close(Some(CloseReason {
                                             code: CloseCode::Normal,
                                             description: Some("END".to_string()),
