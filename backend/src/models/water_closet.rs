@@ -24,8 +24,8 @@ pub enum CleanStates {
 pub struct WaterCloset {
     pub id: i32,
     pub group_id: i32,
-    pub is_available: bool,
     pub is_disabled: bool,
+    pub is_available: bool,
     pub is_door_opened: bool,
     pub is_door_locked: bool,
     pub clean_state: CleanStates,

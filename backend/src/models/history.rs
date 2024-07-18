@@ -33,6 +33,7 @@ pub struct History {
     pub action: Actions,
 }
 
+
 #[derive(Insertable, Serialize, Deserialize)]
 #[diesel(belongs_to(WaterCloset))]
 #[diesel(table_name = crate::schema::histories)]
