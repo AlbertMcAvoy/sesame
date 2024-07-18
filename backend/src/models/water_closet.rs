@@ -42,14 +42,3 @@ pub struct NewWaterCloset {
     pub is_door_locked: bool,
     pub clean_state: CleanStates,
 }
-
-#[derive(Insertable, Serialize, Deserialize)]
-#[diesel(belongs_to(Group))]
-#[diesel(table_name = crate::schema::water_closets)]
-pub struct NewWaterCloset {
-    pub group_id: i32,
-    pub is_disabled: bool,
-    pub is_door_opened: bool,
-    pub is_door_locked: bool,
-    pub clean_state: CleanStates,
-}
