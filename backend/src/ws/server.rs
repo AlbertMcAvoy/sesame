@@ -8,7 +8,11 @@ use rand::{rngs::ThreadRng, Rng};
 use actix::prelude::*;
 
 use diesel::{prelude::*, result::Error};
-use crate::{models::{database::AppState, water_closet::WaterCloset}, schema::water_closets::{dsl::water_closets, id, is_available, is_door_locked, is_door_opened}};
+use crate::{
+    models::{database::AppState, water_closet::WaterCloset},
+    schema::water_closets::{dsl::water_closets, id},
+    services::robot_simulator_services
+};
 
 ///  server sends this messages to session
 #[derive(Message)]
@@ -36,6 +40,7 @@ pub struct Disconnect {
 pub struct ScanMessage {
     pub session_id: usize,
     pub toilet_id: i32,
+    pub scan_mode: String,
     pub app_state: AppState
 }
 
@@ -133,22 +138,21 @@ impl Handler<ScanMessage> for Server {
     type Result = ();
 
     fn handle(&mut self, scan_message: ScanMessage, _: &mut Context<Self>) {
-        let water_closet_result: Result<WaterCloset, Error> = water_closets.filter(id.eq(scan_message.toilet_id)).first::<WaterCloset>(&mut scan_message.app_state.get_conn());
+        let water_closet_result: Result<WaterCloset, Error> = water_closets.find(scan_message.toilet_id).first::<WaterCloset>(&mut scan_message.app_state.get_conn());
         match water_closet_result {
             Ok(water_closet) => {
-                let res = if water_closet.is_available {
-                    let _ = diesel::update(water_closets.find(water_closet.id))
-                        .set((
-                            id.eq(&water_closet.id),
-                            is_available.eq(false),
-                            is_door_opened.eq(false),
-                            is_door_locked.eq(false)
-                        ));
-                    "AVAILABLE"
-                } else { "UNAVAILABLE" };
-                self.send_message(res, scan_message.session_id)
+                println!("{:?}", water_closet.is_available);
+                if water_closet.is_available { 
+                    self.send_message("AVAILABLE", scan_message.session_id);
+                    match robot_simulator_services::scaning_opening_door(water_closet, scan_message.scan_mode.as_str(), &mut scan_message.app_state.get_conn()) {
+                        Ok(res) => self.send_message(&res, scan_message.session_id),
+                        Err(res) => self.send_message(&res, scan_message.session_id)
+                    };
+                } else { 
+                    self.send_message("UNAVAILABLE", scan_message.session_id);
+                };
             },
-            Err(_) => self.send_message("UNKNOWN", scan_message.session_id)
+            Err(_) => self.send_message("!!! Invalid toilet id", scan_message.session_id)
         };
     }
 }
@@ -162,13 +166,7 @@ impl Handler<LeaveMessage> for Server {
         match water_closet_result {
             Ok(water_closet) => {
                 if !water_closet.is_available {
-                    let _ = diesel::update(water_closets.find(water_closet.id))
-                        .set((
-                            id.eq(&water_closet.id),
-                            is_available.eq(true),
-                            is_door_opened.eq(false),
-                            is_door_locked.eq(false)
-                        ));
+                    robot_simulator_services::leaving_opening_door(water_closet, &mut leave_message.app_state.get_conn());
 
                     let mut rooms: Vec<String> = Vec::new();
                     // remove address

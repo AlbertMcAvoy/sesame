@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 
 use actix::prelude::*;
-use actix_web_actors::ws;
+use actix_web_actors::ws::{self, CloseCode, CloseReason};
 
 use crate::models::database::AppState;
 
@@ -37,9 +37,6 @@ pub struct WsSession {
     /// Client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
     pub hb: Instant,
-
-    /// joined room
-    pub room: String,
 
     /// server
     pub addr: Addr<server::Server>,
@@ -133,31 +130,50 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
             }
             ws::Message::Text(text) => {
                 let m = text.trim();
-                let v: Vec<&str> = m.splitn(2, ' ').collect();
+                let v: Vec<&str> = m.splitn(3, ' ').collect();
                 let action = ActionSession::matching(v[0]);
 
                 match action {
                      ActionSession::ClientScan => {
-                        match v[1].parse::<i32>() {
-                            Ok(toilet_id) => self.addr.do_send(server::ScanMessage {
-                                session_id: self.id,
-                                toilet_id,
-                                app_state: self.state.to_owned()
-                            }),
-                            Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                        match v.len() {
+                            3 => {
+                                match v[1].parse::<i32>() {
+                                    Ok(toilet_id) => self.addr.do_send(server::ScanMessage {
+                                        session_id: self.id,
+                                        toilet_id,
+                                        scan_mode: v[2].to_owned(),
+                                        app_state: self.state.to_owned()
+                                    }),
+                                    Err(e) => ctx.text(format!("!!! Invalid toilet id : {}", e)),
+                                }
+                            },
+                            _ => ctx.text(format!("!!! Invalid number of arguments"))
                         }
                     },
                     ActionSession::ClientLeave => {
-                        match v[1].parse::<i32>() {
-                            Ok(toilet_id) => self.addr.do_send(server::LeaveMessage {
-                                session_id: self.id,
-                                toilet_id,
-                                app_state: self.state.to_owned()
-                            }),
-                            Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                        match v.len() {
+                            2 => {
+                                match v[1].parse::<i32>() {
+                                    Ok(toilet_id) => {
+                                        self.addr.do_send(server::LeaveMessage {
+                                            session_id: self.id,
+                                            toilet_id,
+                                            app_state: self.state.to_owned()
+                                        });
+                                        ctx.close(Some(CloseReason {
+                                            code: CloseCode::Normal,
+                                            description: Some("END".to_string()),
+                                        }));
+                                        ctx.stop();
+                                    },
+                                    Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                                }
+                            },
+                            _ => ctx.text(format!("!!! Invalid number of arguments"))
                         }
+                        
                     },
-                    ActionSession::Unkown => ctx.text(format!("!!! unknown command: {m:?}")),
+                    ActionSession::Unkown => ctx.text(format!("!!! Unknown command: {m:?}")),
                 }
             }
             ws::Message::Binary(_) => println!("Unexpected binary"),

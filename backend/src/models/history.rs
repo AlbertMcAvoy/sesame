@@ -28,3 +28,11 @@ pub struct History {
     pub datetime: NaiveDateTime,
     pub action: Actions,
 }
+
+#[derive(Insertable, Deserialize, Serialize)]
+#[diesel(table_name = crate::schema::histories)]
+pub struct NewHistory {
+    pub water_closet_id: i32,
+    pub datetime: NaiveDateTime,
+    pub action: Actions,
+}
