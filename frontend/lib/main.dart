@@ -181,8 +181,8 @@ class _SignInSesameState extends State<SignInSesame> {
       }
 
       return MaterialApp(routes: {
-        '/': (context) => ReportToilette(),
-        // '/': (context) => Layout(),
+        // '/': (context) => ReportToilette(),
+        '/': (context) => Layout(),
         '/returnOk': (context) => ReturnOk(),
       }, initialRoute: '/');
       // The user is Authenticated

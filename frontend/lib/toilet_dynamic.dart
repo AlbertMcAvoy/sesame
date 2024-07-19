@@ -4,7 +4,6 @@ import 'toilet_not_available.dart';
 import 'toilet_opened.dart';
 import 'toilet_see_you_soon.dart';
 import 'toilet_qr_code.dart';
-import 'src/services/websocket_service.dart';
 
 class ToiletDynamic extends StatelessWidget {
     final int index;
