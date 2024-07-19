@@ -20,8 +20,8 @@ jobs:
 
             - name: Build web
             - run: |
-              flutter pub get
-              flutter build web
+                flutter pub get
+                flutter build web
 
             - name: Build APK
             - run: flutter build apk
