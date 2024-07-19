@@ -2,17 +2,16 @@ import 'dart:html' as html;  // Importer dart:html pour Flutter Web
 
 import 'package:flutter/material.dart';
 import '../models/group.dart';
-import '../models/place.dart';
 
 class GroupListItem extends StatelessWidget {
   final Group group;
-  final Place place;
 
-  GroupListItem({required this.group, required this.place});
+  GroupListItem({required this.group});
 
   // Fonction pour ouvrir Google Maps
   void _launchMapsUrl() {
-    final coordinates = place.coordinates.trim();
+    print('coordinates: $group.place?.coordinates');
+    final coordinates = group.place?.coordinates.trim();
     final url = 'https://www.google.com/maps/search/?api=1&query=$coordinates';
 
     // Ouvrir l'URL dans un nouvel onglet
@@ -58,7 +57,7 @@ class GroupListItem extends StatelessWidget {
               ),
 
               Text(
-                place.coordinates,
+                group.place?.coordinates ?? "Coordonnée indisponible",
                 style: TextStyle(color: Colors.grey),
               ),
               SizedBox(height: 8.0),

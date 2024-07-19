@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../src/models/group.dart';
-import '../src/models/place.dart';
 import '../src/screens/group_list_item.dart';
 import '../src/services/api-service/group_service.dart';
-import '../src/services/api-service/place_service.dart';
 
 class ListToilette extends StatefulWidget {
   const ListToilette({super.key});
@@ -15,7 +13,6 @@ class ListToilette extends StatefulWidget {
 class _ListToiletteState extends State<ListToilette> {
   late Future<List<Group>> futureGroups;
   GroupService groupService = GroupService();
-  PlaceService placeService = PlaceService();
 
   @override
   void initState() {
@@ -40,28 +37,7 @@ class _ListToiletteState extends State<ListToilette> {
             return ListView.builder(
               itemCount: groups.length,
               itemBuilder: (context, index) {
-                return FutureBuilder<Place>(
-                  future: placeService.fetchPlace(groups[index].id),
-                  builder: (context, placeSnapshot) {
-                    if (placeSnapshot.connectionState == ConnectionState.waiting) {
-                      return ListTile(
-                        title: Text(groups[index].name),
-                        subtitle: Text('Loading place...'),
-                      );
-                    } else if (placeSnapshot.hasError) {
-                      Place place = placeSnapshot.data!;
-                      return GroupListItem(group: groups[index], place: place);
-                    } else if (!placeSnapshot.hasData) {
-                      return ListTile(
-                        title: Text(groups[index].name),
-                        subtitle: Text('No place found'),
-                      );
-                    } else {
-                      Place place = placeSnapshot.data!;
-                      return GroupListItem(group: groups[index], place: place);
-                    }
-                  },
-                );
+                return GroupListItem(group: groups[index]);
               },
             );
           }
