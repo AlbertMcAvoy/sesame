@@ -13,7 +13,7 @@ class Place {
     return Place(
       id: json['id'],
       name: json['name'] ?? 'Unknown',
-      coordinates: json['coordinates'] ?? 'No coordinates available',
+      coordinates: json['coordonates'] ?? 'No coordinates available',
     );
   }
 }

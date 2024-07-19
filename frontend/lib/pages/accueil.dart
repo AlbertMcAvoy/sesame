@@ -1,85 +1,72 @@
-import 'dart:html';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../src/models/group.dart';
+import '../src/models/place.dart';
+import '../src/screens/group_list_item.dart';
+import '../src/services/api-service/group_service.dart';
+import '../src/services/api-service/place_service.dart';
 
 class ListToilette extends StatefulWidget {
   const ListToilette({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ListToiletteState createState() => _ListToiletteState();
 }
 
-// Future<Toilette> getAllToilettes() async {
-//   final response = await http.post(
-//     Uri.parse('http://localhost'),
-//     headers: <String, String>{
-//       'Content-Type': 'application/json; charset=UTF-8',
-//     },
-//   );
-
-//   if (response.statusCode == 201) {
-//     // If the server did return a 201 CREATED response,
-//     // then parse the JSON.
-//     return Toilette.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-//   } else {
-//     // If the server did not return a 201 CREATED response,
-//     // then throw an exception.
-//     throw Exception('Failed to create album.');
-//   }
-// }
-
-class Toilette {
-  final String nom;
-  final int distance;
-
-  const Toilette({required this.nom, required this.distance});
-
-  factory Toilette.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'nom': String nom,
-        'distance': int distance,
-      } =>
-        Toilette(
-          nom: nom,
-          distance: distance,
-        ),
-      _ => throw const FormatException('Failed to load album.'),
-    };
-  }
-}
-
 class _ListToiletteState extends State<ListToilette> {
+  late Future<List<Group>> futureGroups;
+  GroupService groupService = GroupService();
+  PlaceService placeService = PlaceService();
+
+  @override
+  void initState() {
+    super.initState();
+    futureGroups = groupService.fetchGroups();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print(getAllToilettes());
-    return ListView(
-      children: const <Widget>[
-        Card(
-          child: ListTile(
-            // leading: Icon(Icons.map),
-            title: Text('24, rue Gabillot, 69000 Lyon'),
-            subtitle: Text('300 metres'),
-            tileColor: Colors.white,
-          ),
-        ),
-        Card(
-          child: ListTile(
-            title: Text('24, rue Gabillot, 69000 Lyon'),
-            subtitle: Text('300 metres'),
-            tileColor: Colors.white,
-          ),
-        ),
-        Card(
-          child: ListTile(
-            title: Text('24, rue Gabillot, 69000 Lyon'),
-            subtitle: Text('300 metres'),
-            tileColor: Colors.white,
-          ),
-        ),
-      ],
+    return Scaffold(
+      body: FutureBuilder<List<Group>>(
+        future: futureGroups,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No groups found'));
+          } else {
+            List<Group> groups = snapshot.data!;
+            return ListView.builder(
+              itemCount: groups.length,
+              itemBuilder: (context, index) {
+                return FutureBuilder<Place>(
+                  future: placeService.fetchPlace(groups[index].id),
+                  builder: (context, placeSnapshot) {
+                    if (placeSnapshot.connectionState == ConnectionState.waiting) {
+                      return ListTile(
+                        title: Text(groups[index].name),
+                        subtitle: Text('Loading place...'),
+                      );
+                    } else if (placeSnapshot.hasError) {
+                      Place place = placeSnapshot.data!;
+                      return GroupListItem(group: groups[index], place: place);
+                    } else if (!placeSnapshot.hasData) {
+                      return ListTile(
+                        title: Text(groups[index].name),
+                        subtitle: Text('No place found'),
+                      );
+                    } else {
+                      Place place = placeSnapshot.data!;
+                      return GroupListItem(group: groups[index], place: place);
+                    }
+                  },
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }
