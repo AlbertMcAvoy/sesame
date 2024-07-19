@@ -1,17 +1,27 @@
-use crate::models::report::NewReport;
-use crate::services::report_service;
+use crate::models::report::{NewReport, ReportDTO};
+use crate::services::{auth_service::get_sub_from_token, report_service};
 use crate::AppState;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
+
+fn get_content_type<'a>(req: &'a HttpRequest) -> Option<&'a str> {
+    req.headers().get("Authorization")?.to_str().ok()
+}
 
 pub async fn create_report(
     app_state: web::Data<AppState>,
-    new_report: web::Json<NewReport>,
+    new_report: web::Json<ReportDTO>,
+    req: HttpRequest,
 ) -> impl Responder {
-    match report_service::create_report(&app_state, &new_report).await {
-        Ok(report) => HttpResponse::Created().json(report),
-        Err(err) => {
-            HttpResponse::InternalServerError().body(format!("Failed to insert report: {}", err))
-        }
+    match get_content_type(&req) {
+        Some(auth_token) => match get_sub_from_token(auth_token) {
+            Ok(mail) => match report_service::create_report(&app_state, &new_report, mail).await {
+                Ok(report) => HttpResponse::Created().json(report),
+                Err(err) => HttpResponse::InternalServerError()
+                    .body(format!("Failed to insert report: {}", err)),
+            },
+            Err(err) => HttpResponse::InternalServerError().body(err),
+        },
+        None => HttpResponse::BadRequest().finish(),
     }
 }
 
