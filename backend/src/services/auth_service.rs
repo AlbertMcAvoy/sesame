@@ -1,9 +1,9 @@
+use crate::models::database::DatabaseConnection;
 use crate::models::user::{NewUser, Roles, User};
 use crate::schema::users::dsl::*;
-use crate::AppState;
-use actix_web::web;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
+use jsonwebtoken::errors::Error as JWTError;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -14,36 +14,40 @@ pub struct Claims {
     exp: usize,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AuthError {
+    pub msg: String
+}
+
 pub async fn authentificate(
-    state: &web::Data<AppState>,
+    conn: &mut DatabaseConnection,
     mail_input: &str,
-) -> Result<String, String> {
-    let mut conn = AppState::get_conn(&state);
+) -> Result<String, AuthError> {
 
-    let user_result = users
-        .filter(mail.eq(mail_input))
-        .first::<User>(&mut conn)
-        .optional();
-
-    let user = match user_result {
-        Ok(Some(user)) => user,
-        Ok(None) => {
+    match users.filter(mail.eq(mail_input)).first::<User>(conn) {
+        Ok(user) => match generate_token(user) {
+            Ok(token) => Ok(token),
+            Err(err) => Err(AuthError {msg: format!("{:?}", err)})
+        },
+        Err(_) => {
             // Create a new user if not found
             let new_user = NewUser {
                 mail: mail_input.to_string(),
                 phone: None,
                 role: Roles::User,
             };
-            diesel::insert_into(users)
-                .values(&new_user)
-                .get_result(&mut conn)
-                .map_err(|err| format!("Error creating new user: {}", err))?
+            match diesel::insert_into(users).values(&new_user).get_result(conn) {
+                Ok(user) => match generate_token(user) {
+                    Ok(token) => Ok(token),
+                    Err(err) => Err(AuthError {msg: format!("{:?}", err)})
+                },
+                Err(err) => Err(AuthError {msg: format!("{:?}", err)})
+            }
         }
-        Err(err) => {
-            return Err(format!("Database error: {}", err));
-        }
-    };
+    }
+}
 
+fn generate_token(user: User) -> Result<String, JWTError> {
     // Generate JWT
     let expiration = Utc::now()
         .checked_add_signed(Duration::hours(24))
@@ -57,14 +61,7 @@ pub async fn authentificate(
 
     let secret_key = env::var("JWT_SECRET_KEY").expect("SECRET_KEY must be set");
 
-    let token = encode(
-        &Header::default(),
-        &claims,
-        &EncodingKey::from_secret(secret_key.as_ref()),
-    )
-    .map_err(|err| format!("Error generating JWT: {}", err))?;
-
-    Ok(token)
+    encode(&Header::default(), &claims, &EncodingKey::from_secret(secret_key.as_ref()))
 }
 
 pub fn get_sub_from_token(token: &str) -> Result<String, String> {
