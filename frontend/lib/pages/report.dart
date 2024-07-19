@@ -43,7 +43,7 @@ class _ReportToiletteFormState extends State<ReportToiletteForm> {
                 color: Colors.black,
                 fontSize: 26,
               ),
-              child: Text('Type de probléme'),
+              child: Text('Type de problème'),
             ),
           ),
           const Padding(
@@ -117,9 +117,10 @@ Future<void> reportToilette(
   var date = DateTime.now().toIso8601String();
   print('http://localhost:8080/reports/${localStorage.getItem('auth')}');
   final response = await http.post(
-    Uri.parse('http://localhost:8080/reports/${localStorage.getItem('auth')}'),
+    Uri.parse('http://localhost:8080/reports'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': localStorage.getItem('auth').toString(),
     },
     body: jsonEncode(<String, Object>{
       'water_closet_id': water_closet_id,
