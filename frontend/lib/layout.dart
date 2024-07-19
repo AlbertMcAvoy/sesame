@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'pages/accueil.dart';
 import 'pages/report.dart';
 import 'pages/returnOk.dart';
-import 'toilet_locked.dart';
-import 'toilet_not_available.dart';
-import 'toilet_opened.dart';
-import 'toilet_see_you_soon.dart';
 import 'toilet_dynamic.dart';
 import 'manage_door.dart';
 
@@ -21,7 +17,9 @@ class _LayoutState extends State<Layout> {
   static List<Widget> _widgetOptions = <Widget>[
     ListToilette(),
     // ReportToilette(),
-    ToiletDynamic(),
+    ToiletDynamic(
+      index: 0,
+    ),
     Text(
       'Index 2: School',
       style: optionStyle,

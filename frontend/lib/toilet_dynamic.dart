@@ -4,52 +4,28 @@ import 'toilet_not_available.dart';
 import 'toilet_opened.dart';
 import 'toilet_see_you_soon.dart';
 import 'toilet_qr_code.dart';
-import 'package:go_router/go_router.dart';
+import 'src/services/websocket_service.dart';
 
 class ToiletDynamic extends StatelessWidget {
-    final GoRouter _router = GoRouter(
-        routes: <RouteBase>[
-            GoRoute(
-                path: '/',
-                builder: (BuildContext context, GoRouterState state) {
-                    return ToiletQrCode();
-                },
-                routes: <RouteBase>[
-                    GoRoute(
-                        path: 'locked',
-                        builder: (BuildContext context, GoRouterState state) {
-                            return ToiletLocked();
-                        },
-                    ),
-                    GoRoute(
-                        path: 'opened',
-                        builder: (BuildContext context, GoRouterState state) {
-                            return ToiletOpened();
-                        },
-                    ),
-                    GoRoute(
-                        path: 'not-available',
-                        builder: (BuildContext context, GoRouterState state) {
-                            return ToiletNotAvailable();
-                        },
-                    ),
-                    GoRoute(
-                        path: 'see-you-soon',
-                        builder: (BuildContext context, GoRouterState state) {
-                            return ToiletSeeYouSoon();
-                        },
-                    ),
-                ],
-            ),
-        ],
-    );
+    final int index;
 
-    ToiletDynamic();
+    ToiletDynamic({required this.index});
 
     @override
     Widget build(BuildContext context) {
-        return MaterialApp.router(
-            routerConfig: _router,
-        );
+        switch (index) {
+            case 0:
+                return ToiletQrCode();
+            case 1:
+                return ToiletNotAvailable();
+            case 2:
+                return ToiletOpened();
+            case 3:
+                return ToiletLocked();
+            case 4:
+                return ToiletSeeYouSoon();
+            default:
+                return Text("Aucun widget de toilettes !");
+        }
     }
 }

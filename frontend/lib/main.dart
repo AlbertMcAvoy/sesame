@@ -153,12 +153,12 @@ class _SignInSesameState extends State<SignInSesame> {
 
   createUser(String email) async {
     final response = await http.post(
-      Uri.parse('http://localhost'),
+      Uri.parse('http://localhost:8080/auth'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'email': email,
+        'mail': email,
       }),
     );
     if (response.statusCode == 201) {
@@ -264,7 +264,7 @@ class _SignInSesameState extends State<SignInSesame> {
         // appBar: AppBar(
         //   title: const Text('Google Sign In'),
         // ),
-        body: ConstrainedBox(
+      body: ConstrainedBox(
       constraints: const BoxConstraints.expand(),
       child: _buildBody(),
     ));
