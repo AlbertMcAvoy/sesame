@@ -175,7 +175,7 @@ class _SignInSesameState extends State<SignInSesame> {
 
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
-    if (user != null || localStorage.getItem('auth') != null) {
+    if (user != null ) {
       if (user != null) {
         createUser(user.email);
       }
@@ -183,6 +183,7 @@ class _SignInSesameState extends State<SignInSesame> {
       return MaterialApp(routes: {
         // '/': (context) => ReportToilette(),
         '/': (context) => Layout(),
+        '/report': (context) => ReportToilette(),
         '/returnOk': (context) => ReturnOk(),
       }, initialRoute: '/');
       // The user is Authenticated
