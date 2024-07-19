@@ -11,6 +11,7 @@ class PlaceService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      print('Response data 2: $data');  // Ajoute cette ligne pour déboguer
       return Place.fromJson(data);
     } else {
       throw Exception('Failed to load place');
