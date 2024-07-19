@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'src/sign_in_button.dart';
 import 'layout.dart';
 import 'pages/returnOk.dart';
+import 'pages/report.dart';
 import 'package:localstorage/localstorage.dart';
 
 /// The scopes required by this application.
@@ -151,7 +152,6 @@ class _SignInSesameState extends State<SignInSesame> {
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
   createUser(String email) async {
-    print(email);
     final response = await http.post(
       Uri.parse('http://localhost:8080/auth'),
       headers: <String, String>{
@@ -161,7 +161,6 @@ class _SignInSesameState extends State<SignInSesame> {
         'mail': email,
       }),
     );
-    print(jsonDecode(response.body));
     if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
@@ -182,7 +181,8 @@ class _SignInSesameState extends State<SignInSesame> {
       }
 
       return MaterialApp(routes: {
-        '/': (context) => Layout(),
+        '/': (context) => ReportToilette(),
+        // '/': (context) => Layout(),
         '/returnOk': (context) => ReturnOk(),
       }, initialRoute: '/');
       // The user is Authenticated
