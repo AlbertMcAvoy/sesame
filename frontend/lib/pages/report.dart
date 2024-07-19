@@ -115,8 +115,9 @@ class _ReportToiletteFormState extends State<ReportToiletteForm> {
 Future<void> reportToilette(
     context, water_closet_id, topic, state, comment) async {
   var date = DateTime.now().toIso8601String();
+  print('http://localhost:8080/reports/${localStorage.getItem('auth')}');
   final response = await http.post(
-    Uri.parse('http://localhost:8080/reports${localStorage.getItem('auth')}'),
+    Uri.parse('http://localhost:8080/reports/${localStorage.getItem('auth')}'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
