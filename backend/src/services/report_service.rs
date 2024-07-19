@@ -1,20 +1,28 @@
-use crate::models::report::{NewReport, Report};
+use crate::models::report::{NewReport, Report, ReportDTO};
+use crate::models::user::User;
 use crate::schema::reports::dsl::*;
+use crate::schema::users::dsl::{mail, users};
 use crate::AppState;
 use actix_web::web;
 use diesel::prelude::*;
 
 pub async fn create_report(
     app_state: &web::Data<AppState>,
-    new_report: &NewReport,
+    new_report: &ReportDTO,
+    user_mail: String,
 ) -> Result<Report, String> {
     let mut conn = app_state
         .conn
         .get()
         .map_err(|err| format!("Failed to get a connection from the pool: {}", err))?;
 
+    let user = users
+        .filter(mail.eq(user_mail))
+        .first::<User>(&mut conn)
+        .unwrap();
+
     let new_report = NewReport {
-        user_id: new_report.user_id,
+        user_id: user.id,
         water_closet_id: new_report.water_closet_id,
         datetime: new_report.datetime,
         state: new_report.state.clone(),
