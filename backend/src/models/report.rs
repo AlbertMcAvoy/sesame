@@ -59,3 +59,12 @@ pub struct NewReport {
     pub topic: Topics,
     pub comment: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ReportDTO {
+    pub water_closet_id: i32,
+    pub datetime: NaiveDateTime,
+    pub state: States,
+    pub topic: Topics,
+    pub comment: String,
+}

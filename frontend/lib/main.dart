@@ -4,12 +4,12 @@ import 'dart:convert' show json;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import './src/screens/websocket_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'src/sign_in_button.dart';
 import 'layout.dart';
 import 'pages/returnOk.dart';
+import 'pages/report.dart';
 import 'package:localstorage/localstorage.dart';
 
 /// The scopes required by this application.
@@ -29,10 +29,10 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 void main() {
   initLocalStorage();
   runApp(
-    MaterialApp(
+    const MaterialApp(
       title: 'Sesame',
       debugShowCheckedModeBanner: false,
-      home: SignInSesame(), /*WebSocketScreen()*/ /** TODO: appeler cette classe dans le layout quand il sera pret */
+      home: SignInSesame() /** TODO: appeler cette classe dans le layout quand il sera pret */
     ),
   );
 }
@@ -161,7 +161,7 @@ class _SignInSesameState extends State<SignInSesame> {
         'mail': email,
       }),
     );
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
     localStorage.setItem('auth', jsonDecode(response.body));
@@ -176,12 +176,13 @@ class _SignInSesameState extends State<SignInSesame> {
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
     if (user != null || localStorage.getItem('auth') != null) {
-      if(user != null) {
+      if (user != null) {
         createUser(user.email);
-        
       }
+
       return MaterialApp(routes: {
-        '/': (context) => Layout(),
+        '/': (context) => ReportToilette(),
+        // '/': (context) => Layout(),
         '/returnOk': (context) => ReturnOk(),
       }, initialRoute: '/');
       // The user is Authenticated

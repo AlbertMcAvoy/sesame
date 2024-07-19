@@ -1,92 +1,55 @@
-use crate::models::report::{NewReport, Report};
-use crate::schema::reports::dsl::*;
+use crate::models::report::{NewReport, ReportDTO};
+use crate::services::{auth_service::get_sub_from_token, report_service};
 use crate::AppState;
-use actix_web::{web, HttpResponse, Responder};
-use diesel::prelude::*;
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 
-// Créer une entrée de report
+fn get_content_type<'a>(req: &'a HttpRequest) -> Option<&'a str> {
+    req.headers().get("Authorization")?.to_str().ok()
+}
+
 pub async fn create_report(
     app_state: web::Data<AppState>,
-    new_report: web::Json<NewReport>,
+    new_report: web::Json<ReportDTO>,
+    req: HttpRequest,
 ) -> impl Responder {
-    let mut conn = app_state
-        .conn
-        .get()
-        .expect("Failed to get a connection from the pool.");
-
-    let new_report = NewReport {
-        user_id: new_report.user_id,
-        water_closet_id: new_report.water_closet_id,
-        datetime: new_report.datetime,
-        state: new_report.state.clone(),
-        topic: new_report.topic.clone(),
-        comment: new_report.comment.clone(),
-    };
-
-    match diesel::insert_into(reports)
-        .values(&new_report)
-        .get_result::<Report>(&mut conn)
-    {
-        Ok(inserted_report) => HttpResponse::Created().json(inserted_report),
-        Err(err) => {
-            HttpResponse::InternalServerError().body(format!("Failed to insert report: {}", err))
-        }
+    match get_content_type(&req) {
+        Some(auth_token) => match get_sub_from_token(auth_token) {
+            Ok(mail) => match report_service::create_report(&app_state, &new_report, mail).await {
+                Ok(report) => HttpResponse::Created().json(report),
+                Err(err) => HttpResponse::InternalServerError()
+                    .body(format!("Failed to insert report: {}", err)),
+            },
+            Err(err) => HttpResponse::InternalServerError().body(err),
+        },
+        None => HttpResponse::BadRequest().finish(),
     }
 }
 
-// Lire toutes les entrées de report
 pub async fn get_reports(app_state: web::Data<AppState>) -> impl Responder {
-    let mut conn = app_state
-        .conn
-        .get()
-        .expect("Failed to get a connection from the pool.");
-
-    match reports.load::<Report>(&mut conn) {
-        Ok(results) => HttpResponse::Ok().json(results),
+    match report_service::get_reports(&app_state).await {
+        Ok(reports) => HttpResponse::Ok().json(reports),
         Err(err) => {
             HttpResponse::InternalServerError().body(format!("Failed to load reports: {}", err))
         }
     }
 }
 
-// Lire une entrée spécifique de report
 pub async fn get_report(
     app_state: web::Data<AppState>,
     report_id: web::Path<i32>,
 ) -> impl Responder {
-    let mut conn = app_state
-        .conn
-        .get()
-        .expect("Failed to get a connection from the pool.");
-
-    match reports.filter(id.eq(*report_id)).first::<Report>(&mut conn) {
+    match report_service::get_report(&app_state, *report_id).await {
         Ok(report) => HttpResponse::Ok().json(report),
         Err(err) => HttpResponse::NotFound().body(format!("Report not found: {}", err)),
     }
 }
 
-// Mettre à jour une entrée de report
 pub async fn update_report(
     app_state: web::Data<AppState>,
     report_id: web::Path<i32>,
     updated_report: web::Json<NewReport>,
 ) -> impl Responder {
-    let mut conn = app_state
-        .conn
-        .get()
-        .expect("Failed to get a connection from the pool.");
-
-    match diesel::update(reports.find(*report_id))
-        .set((
-            user_id.eq(&updated_report.user_id),
-            water_closet_id.eq(&updated_report.water_closet_id),
-            datetime.eq(&updated_report.datetime),
-            state.eq(&updated_report.state),
-            topic.eq(&updated_report.topic),
-            comment.eq(&updated_report.comment),
-        ))
-        .execute(&mut conn)
-    {
+    match report_service::update_report(&app_state, *report_id, &updated_report).await {
         Ok(_) => HttpResponse::Ok().json(updated_report.into_inner()),
         Err(err) => {
             HttpResponse::InternalServerError().body(format!("Failed to update report: {}", err))
@@ -94,17 +57,11 @@ pub async fn update_report(
     }
 }
 
-// Supprimer une entrée de report
 pub async fn delete_report(
     app_state: web::Data<AppState>,
     report_id: web::Path<i32>,
 ) -> impl Responder {
-    let mut conn = app_state
-        .conn
-        .get()
-        .expect("Failed to get a connection from the pool.");
-
-    match diesel::delete(reports.find(*report_id)).execute(&mut conn) {
+    match report_service::delete_report(&app_state, *report_id).await {
         Ok(_) => HttpResponse::Ok().body("Report deleted"),
         Err(err) => {
             HttpResponse::InternalServerError().body(format!("Failed to delete report: {}", err))

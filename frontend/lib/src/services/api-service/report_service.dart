@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../models/report.dart';
 
 class ReportService {
-  final String baseUrl = 'http://your-api-url.com';
+  final String baseUrl = 'http://localhost:8080';
 
   Future<List<Report>> fetchReports() async {
     final response = await http.get(Uri.parse('$baseUrl/reports'));
