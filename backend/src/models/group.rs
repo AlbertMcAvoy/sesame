@@ -2,6 +2,8 @@ use crate::models::user::User;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use super::place::Place;
+
 #[derive(
     Queryable, Selectable, Identifiable, Associations, PartialEq, Debug, Serialize, Deserialize,
 )]
@@ -20,4 +22,12 @@ pub struct Group {
 pub struct NewGroup {
     pub user_id: i32,
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GroupDTO {
+    pub id: i32,
+    pub user_id: i32,
+    pub name: String,
+    pub place: Option<Place>,
 }
