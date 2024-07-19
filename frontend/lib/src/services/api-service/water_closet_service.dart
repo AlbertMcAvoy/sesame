@@ -5,8 +5,8 @@ import '../../models/water_closet.dart';
 class WaterClosetService {
   final String baseUrl = 'http://localhost:8080';
 
-  Future<List<WaterCloset>> fetchWaterClosets() async {
-    final response = await http.get(Uri.parse('$baseUrl/water_closets'));
+  Future<List<WaterCloset>> fetchWaterClosets(int groupId) async {
+    final response = await http.get(Uri.parse('$baseUrl/groups/$groupId/waterclosets'));
 
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);

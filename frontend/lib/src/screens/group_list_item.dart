@@ -1,7 +1,7 @@
-import 'dart:html' as html;  // Importer dart:html pour Flutter Web
-
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import '../models/group.dart';
+import '../../pages/toiletListPage.dart'; // Importez la page ToiletListPage
 
 class GroupListItem extends StatelessWidget {
   final Group group;
@@ -10,7 +10,7 @@ class GroupListItem extends StatelessWidget {
 
   // Fonction pour ouvrir Google Maps
   void _launchMapsUrl() {
-    print('coordinates: $group.place?.coordinates');
+    print('coordinates: ${group.place?.coordinates}');
     final coordinates = group.place?.coordinates.trim();
     final url = 'https://www.google.com/maps/search/?api=1&query=$coordinates';
 
@@ -24,11 +24,17 @@ class GroupListItem extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _launchMapsUrl,  // Appel de la fonction lors du clic
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ToiletListPage(groupId: group.id, group: group,),
+          ),
+        );
+      },  // Appel de la fonction lors du clic
       child: Card(
         margin: EdgeInsets.all(8.0),
         child: Padding(
@@ -37,17 +43,12 @@ class GroupListItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Chip(
-                    label: Text('Accès handicapé', style: TextStyle(color: Colors.black, fontSize: 12)),
-                    backgroundColor: Color(0xFFB0FFDF),
-                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      side: BorderSide(color: Colors.transparent),
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.map),
+                    onPressed: _launchMapsUrl,
                   ),
-                  SizedBox(width: 5),
                 ],
               ),
               SizedBox(height: 8.0),
@@ -55,7 +56,6 @@ class GroupListItem extends StatelessWidget {
                 group.name,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-
               Text(
                 group.place?.coordinates ?? "Coordonnée indisponible",
                 style: TextStyle(color: Colors.grey),
