@@ -21,10 +21,7 @@ class _LayoutState extends State<Layout> {
     ToiletDynamic(
       index: 0,
     ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
+      ReportToilette(),
     ReturnOk(),
   ];
 
