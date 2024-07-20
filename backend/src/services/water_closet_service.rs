@@ -1,17 +1,13 @@
+use crate::models::database::DatabaseConnection;
 use crate::models::water_closet::{NewWaterCloset, WaterCloset};
 use crate::schema::water_closets::dsl::*;
-use crate::AppState;
-use actix_web::web;
 use diesel::prelude::*;
+use diesel::result::Error;
 
 pub async fn create_water_closet(
-    state: &web::Data<AppState>,
+    conn: &mut DatabaseConnection,
     new_water_closet: &NewWaterCloset,
-) -> Result<WaterCloset, String> {
-    let mut conn = state
-        .conn
-        .get()
-        .map_err(|err| format!("Failed to get a connection from the pool: {}", err))?;
+) -> Result<WaterCloset, Error> {
 
     let new_water_closet = NewWaterCloset {
         group_id: new_water_closet.group_id,
@@ -24,46 +20,27 @@ pub async fn create_water_closet(
 
     diesel::insert_into(water_closets)
         .values(&new_water_closet)
-        .get_result::<WaterCloset>(&mut conn)
-        .map_err(|err| format!("Failed to insert water closet: {}", err))
+        .get_result::<WaterCloset>(conn)
 }
 
-pub async fn get_water_closets(state: &web::Data<AppState>) -> Result<Vec<WaterCloset>, String> {
-    let mut conn = state
-        .conn
-        .get()
-        .map_err(|err| format!("Failed to get a connection from the pool: {}", err))?;
-
-    water_closets
-        .load::<WaterCloset>(&mut conn)
-        .map_err(|err| format!("Failed to load water closets: {}", err))
+pub async fn get_water_closets(conn: &mut DatabaseConnection) -> Result<Vec<WaterCloset>, Error> {
+    water_closets.load::<WaterCloset>(conn)
 }
 
 pub async fn get_water_closet(
-    state: &web::Data<AppState>,
+    conn: &mut DatabaseConnection,
     water_closet_id: i32,
-) -> Result<WaterCloset, String> {
-    let mut conn = state
-        .conn
-        .get()
-        .map_err(|err| format!("Failed to get a connection from the pool: {}", err))?;
-
+) -> Result<WaterCloset, Error> {
     water_closets
         .filter(id.eq(water_closet_id))
-        .first::<WaterCloset>(&mut conn)
-        .map_err(|err| format!("Water closet not found: {}", err))
+        .first::<WaterCloset>(conn)
 }
 
 pub async fn update_water_closet(
-    state: &web::Data<AppState>,
+    conn: &mut DatabaseConnection,
     water_closet_id: i32,
     updated_water_closet: &NewWaterCloset,
-) -> Result<(), String> {
-    let mut conn = state
-        .conn
-        .get()
-        .map_err(|err| format!("Failed to get a connection from the pool: {}", err))?;
-
+) -> Result<WaterCloset, Error> {
     diesel::update(water_closets.find(water_closet_id))
         .set((
             group_id.eq(&updated_water_closet.group_id),
@@ -73,36 +50,22 @@ pub async fn update_water_closet(
             is_door_locked.eq(&updated_water_closet.is_door_locked),
             clean_state.eq(&updated_water_closet.clean_state),
         ))
-        .execute(&mut conn)
-        .map(|_| ())
-        .map_err(|err| format!("Failed to update water closet: {}", err))
+        .get_result(conn)
 }
 
 pub async fn delete_water_closet(
-    state: &web::Data<AppState>,
+    conn: &mut DatabaseConnection,
     water_closet_id: i32,
-) -> Result<(), String> {
-    let mut conn = state
-        .conn
-        .get()
-        .map_err(|err| format!("Failed to get a connection from the pool: {}", err))?;
-
+) -> Result<WaterCloset, Error> {
     diesel::delete(water_closets.find(water_closet_id))
-        .execute(&mut conn)
-        .map(|_| ())
-        .map_err(|err| format!("Failed to delete water closet: {}", err))
+        .get_result(conn)
 }
 
 pub async fn get_water_closets_by_group_id(
-    state: web::Data<AppState>,
+    conn: &mut DatabaseConnection,
     id_group: i32,
-) -> Result<Vec<WaterCloset>, diesel::result::Error> {
-    let mut conn = state
-        .conn
-        .get()
-        .expect("Failed to get a connection from the pool.");
-
+) -> Result<Vec<WaterCloset>, Error> {
     water_closets
         .filter(crate::schema::water_closets::group_id.eq(id_group))
-        .load::<WaterCloset>(&mut conn)
+        .load::<WaterCloset>(conn)
 }

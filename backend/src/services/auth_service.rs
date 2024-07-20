@@ -64,13 +64,13 @@ fn generate_token(user: User) -> Result<String, JWTError> {
     encode(&Header::default(), &claims, &EncodingKey::from_secret(secret_key.as_ref()))
 }
 
-pub fn get_sub_from_token(token: &str) -> Result<String, String> {
+pub fn get_sub_from_token(token: &str) -> Result<String, AuthError> {
     let secret_key = env::var("JWT_SECRET_KEY").expect("SECRET_KEY must be set");
     let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
     let validation = Validation::new(Algorithm::HS256);
 
     match decode::<Claims>(token, &decoding_key, &validation) {
         Ok(token_data) => Ok(token_data.claims.sub),
-        Err(err) => Err(format!("Failed to decode token: {}", err)),
+        Err(err) => Err(AuthError {msg: format!("{:?}", err)}),
     }
 }

@@ -19,7 +19,7 @@ pub async fn create_report(
                 Err(err) => HttpResponse::InternalServerError()
                     .body(format!("Failed to insert report: {}", err)),
             },
-            Err(err) => HttpResponse::InternalServerError().body(err),
+            Err(err) => HttpResponse::InternalServerError().body(format!("Authentication failed: {}", err.msg)),
         },
         None => HttpResponse::BadRequest().finish(),
     }
