@@ -1,5 +1,5 @@
 use crate::models::report::{NewReport, ReportDTO};
-use crate::services::{auth_service::get_sub_from_token, report_service};
+use crate::services::{auth_service::get_mail_from_token, report_service};
 use crate::AppState;
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 
@@ -13,7 +13,7 @@ pub async fn create_report(
     req: HttpRequest,
 ) -> impl Responder {
     match get_content_type(&req) {
-        Some(auth_token) => match get_sub_from_token(auth_token) {
+        Some(auth_token) => match get_mail_from_token(auth_token) {
             Ok(mail) => match report_service::create_report(&mut app_state.get_ref().get_conn(), &new_report, mail).await {
                 Ok(report) => HttpResponse::Created().json(report),
                 Err(err) => HttpResponse::InternalServerError()
