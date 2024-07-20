@@ -1,3 +1,4 @@
+use crate::helpers::errors::web_errors;
 use crate::models::report::{NewReport, ReportDTO};
 use crate::services::{auth_service::get_mail_from_token, report_service};
 use crate::AppState;
@@ -17,9 +18,12 @@ pub async fn create_report(
             Ok(mail) => match report_service::create_report(&mut app_state.get_ref().get_conn(), &new_report, mail).await {
                 Ok(report) => HttpResponse::Created().json(report),
                 Err(err) => HttpResponse::InternalServerError()
-                    .body(format!("Failed to insert report: {}", err)),
+                        .content_type("application/json;charset=utf-8")
+                        .json(web_errors::ErrorResult { status_code: 500, msg: err.to_string() })
             },
-            Err(err) => HttpResponse::InternalServerError().body(format!("Authentication failed: {}", err.msg)),
+            Err(err) => HttpResponse::InternalServerError()
+                .content_type("application/json;charset=utf-8")
+                .json(web_errors::ErrorResult { status_code: 500, msg: err.to_string() })
         },
         None => HttpResponse::BadRequest().finish(),
     }
@@ -28,9 +32,9 @@ pub async fn create_report(
 pub async fn get_reports(app_state: web::Data<AppState>) -> impl Responder {
     match report_service::get_reports(&mut app_state.get_ref().get_conn()).await {
         Ok(reports) => HttpResponse::Ok().json(reports),
-        Err(err) => {
-            HttpResponse::InternalServerError().body(format!("Failed to load reports: {}", err))
-        }
+        Err(err) => HttpResponse::InternalServerError()
+                .content_type("application/json;charset=utf-8")
+                .json(web_errors::ErrorResult { status_code: 500, msg: err.to_string() })
     }
 }
 
@@ -40,7 +44,9 @@ pub async fn get_report(
 ) -> impl Responder {
     match report_service::get_report(&mut app_state.get_ref().get_conn(), *report_id).await {
         Ok(report) => HttpResponse::Ok().json(report),
-        Err(err) => HttpResponse::NotFound().body(format!("Report not found: {}", err)),
+        Err(err) => HttpResponse::NotFound()
+            .content_type("application/json;charset=utf-8")
+            .json(web_errors::ErrorResult { status_code: 404, msg: err.to_string() })
     }
 }
 
@@ -51,9 +57,9 @@ pub async fn update_report(
 ) -> impl Responder {
     match report_service::update_report(&mut app_state.get_ref().get_conn(), *report_id, &updated_report).await {
         Ok(_) => HttpResponse::Ok().json(updated_report.into_inner()),
-        Err(err) => {
-            HttpResponse::InternalServerError().body(format!("Failed to update report: {}", err))
-        }
+        Err(err) => HttpResponse::InternalServerError()
+                .content_type("application/json;charset=utf-8")
+                .json(web_errors::ErrorResult { status_code: 500, msg: err.to_string() })
     }
 }
 
@@ -63,8 +69,8 @@ pub async fn delete_report(
 ) -> impl Responder {
     match report_service::delete_report(&mut app_state.get_ref().get_conn(), *report_id).await {
         Ok(_) => HttpResponse::Ok().body("Report deleted"),
-        Err(err) => {
-            HttpResponse::InternalServerError().body(format!("Failed to delete report: {}", err))
-        }
+        Err(err) => HttpResponse::InternalServerError()
+                .content_type("application/json;charset=utf-8")
+                .json(web_errors::ErrorResult { status_code: 500, msg: err.to_string() })
     }
 }

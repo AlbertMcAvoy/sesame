@@ -6,15 +6,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::user::User;
 
+use super::errors::business_errors::AuthError;
+
 #[derive(Deserialize, Serialize)]
 pub struct Claims {
     sub: String,
     exp: usize,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct AuthError {
-    pub msg: String
 }
 
 pub fn generate_token(user: User) -> Result<String, Error> {

@@ -1,4 +1,5 @@
-use crate::helpers::auth_helper::{generate_token, get_sub_from_token, AuthError};
+use crate::helpers::auth_helper::{generate_token, get_sub_from_token};
+use crate::helpers::errors::business_errors::AuthError;
 use crate::models::database::DatabaseConnection;
 use crate::models::user::{NewUser, Roles, User};
 use crate::schema::users::dsl::*;
