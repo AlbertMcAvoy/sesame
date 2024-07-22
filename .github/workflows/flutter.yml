@@ -20,7 +20,7 @@ jobs:
         with:
           channel: stable
           flutter-version-file: ./frontend/pubspec.yaml # path to pubspec.yaml
-        run: flutter --version
+      - run: flutter --version
       - name: Doctor
         run: flutter doctor
         
