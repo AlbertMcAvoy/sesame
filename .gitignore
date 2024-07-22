@@ -1,4 +1,4 @@
 .vscode
-/frontend/linux
-/frontend/windows
-/frontend/macos
+/frontend/linux/flutter
+/frontend/windows/flutter
+/frontend/macos/flutter
