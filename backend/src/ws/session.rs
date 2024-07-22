@@ -144,9 +144,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                                 scan_mode: v[2].to_owned(),
                                 app_state: self.state.to_owned(),
                             }),
-                            Err(e) => ctx.text(format!("!!! Invalid toilet id : {}", e)),
+                            Err(e) => ctx.text(format!("ERROR|Invalid toilet id : {}", e)),
                         },
-                        _ => ctx.text(format!("!!! Invalid number of arguments")),
+                        _ => ctx.text(format!("ERROR|Invalid number of arguments")),
                     },
                     ActionSession::ClientLeave => match v.len() {
                         2 => match v[1].parse::<i32>() {
@@ -167,11 +167,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                                     Err(_) => {}
                                 }
                             }
-                            Err(_) => ctx.text(format!("!!! Invalid toilet id")),
+                            Err(_) => ctx.text(format!("ERROR|Invalid toilet id")),
                         },
-                        _ => ctx.text(format!("!!! Invalid number of arguments")),
+                        _ => ctx.text(format!("ERROR|Invalid number of arguments")),
                     },
-                    ActionSession::Unkown => ctx.text(format!("!!! Unknown command: {m:?}")),
+                    ActionSession::Unkown => ctx.text(format!("ERROR|Unknown command: {m:?}")),
                 }
             }
             ws::Message::Binary(_) => println!("Unexpected binary"),
