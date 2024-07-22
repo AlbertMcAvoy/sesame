@@ -16,7 +16,8 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-        - uses: actions/checkout@v4
+        - name: Clone repository
+          uses: actions/checkout@v4
         - name: Check
           run: cargo check --verbose
         - name: Build
