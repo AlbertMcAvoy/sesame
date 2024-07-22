@@ -1,12 +1,11 @@
 use std::{thread::sleep, time::Duration};
 
 use chrono::Utc;
-use diesel::{prelude::*, r2d2::ConnectionManager};
-use r2d2::PooledConnection;
-use crate::{models::{history::{NewHistory, Actions}, water_closet::WaterCloset}, schema::{histories::dsl::histories, water_closets::{dsl::water_closets, is_available, is_door_locked, is_door_opened}}};
+use diesel::prelude::*;
+use crate::{models::{database::DatabaseConnection, history::{Actions, NewHistory}, water_closet::WaterCloset}, schema::{histories::dsl::histories, water_closets::{dsl::water_closets, is_available, is_door_locked, is_door_opened}}};
 
 
-pub fn scaning_opening_door(water_closet: WaterCloset, scan_mode: &str, conn: &mut PooledConnection<ConnectionManager<PgConnection>>) -> Result<String, String> {
+pub fn scaning_opening_door(water_closet: WaterCloset, scan_mode: &str, conn: &mut DatabaseConnection) -> Result<String, String> {
     match register_scan_mode(&water_closet, scan_mode, conn) {
         Ok(_) => {
             let _ = diesel::insert_into(histories).values(generate_history(&water_closet, Actions::DoorOpening))
@@ -32,27 +31,27 @@ pub fn scaning_opening_door(water_closet: WaterCloset, scan_mode: &str, conn: &m
                 .execute(conn);
             Ok(String::from("ENTERED"))
         },
-        Err(_) => Err(String::from("UNKNOWN"))
+        Err(err) => Err(err)
     }
 }
 
-fn register_scan_mode(water_closet: &WaterCloset, scan_mode: &str, conn: &mut PooledConnection<ConnectionManager<PgConnection>>) -> Result<String, String> {
+fn register_scan_mode(water_closet: &WaterCloset, scan_mode: &str, conn: &mut DatabaseConnection) -> Result<(), String> {
     match scan_mode {
         "QR_CODE" => {
             let _ = diesel::insert_into(histories).values(generate_history(&water_closet, Actions::QRCodeScan))
                 .execute(conn);
-            Ok(String::from("DONE"))
+            Ok(())
         },
         "NFC_CODE" => {
             let _ = diesel::insert_into(histories).values(generate_history(&water_closet, Actions::NFCScan))
                 .execute(conn);
-            Ok(String::from("DONE"))
+            Ok(())
         },
-        _ => Err(String::from("UNKNOWN"))
+        _ => Err(String::from("ERROR|Unknown scan mode"))
     }
 }
 
-pub fn leaving_opening_door(water_closet: WaterCloset, conn: &mut PooledConnection<ConnectionManager<PgConnection>>) {
+pub fn leaving_opening_door(water_closet: WaterCloset, conn: &mut DatabaseConnection) {
     let _ = diesel::insert_into(histories).values(generate_history(&water_closet, Actions::LockOpening))
         .execute(conn);
     let _ = diesel::insert_into(histories).values(generate_history(&water_closet, Actions::DoorOpening))

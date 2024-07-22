@@ -12,10 +12,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
-        - uses: actions/checkout@v4
-        - name: Get into backend
-          run: cd backend
+        - name: Clone repository
+          uses: actions/checkout@v4
         - name: Check
           run: cargo check --verbose
         - name: Build

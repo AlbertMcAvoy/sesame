@@ -160,7 +160,7 @@ impl Handler<ScanMessage> for Server {
                     self.send_message("UNAVAILABLE", scan_message.session_id);
                 };
             }
-            Err(_) => self.send_message("!!! Invalid toilet id", scan_message.session_id),
+            Err(_) => self.send_message("ERROR|Invalid toilet id", scan_message.session_id),
         };
     }
 }
@@ -193,7 +193,7 @@ impl Handler<LeaveMessage> for Server {
                     }
                 };
             }
-            Err(_) => self.send_message("UNKNOWN", leave_message.session_id),
+            Err(_) => self.send_message("ERROR|Invalid toilet id", leave_message.session_id),
         };
     }
 }

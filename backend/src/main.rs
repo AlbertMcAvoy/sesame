@@ -28,6 +28,7 @@ use std::env;
 use std::sync::Arc;
 use ws::server;
 
+mod helpers;
 mod controllers;
 mod models;
 mod schema;
