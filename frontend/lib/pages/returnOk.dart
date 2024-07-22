@@ -1,7 +1,4 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-import '../layout.dart';
 
 class ReturnOk extends StatefulWidget {
   const ReturnOk({super.key});
@@ -30,7 +27,7 @@ class _ReturnOkState extends State<ReturnOk> {
 
   Future<void> returnHomeTimeout() async {
     // Simulate a delay of 3 seconds
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 5));
 
     Navigator.pushNamed(context, '/');
   }
