@@ -7,7 +7,7 @@ class ListToilette extends StatefulWidget {
   const ListToilette({super.key});
 
   @override
-  _ListToiletteState createState() => _ListToiletteState();
+  State createState() => _ListToiletteState();
 }
 
 class _ListToiletteState extends State<ListToilette> {
@@ -27,11 +27,11 @@ class _ListToiletteState extends State<ListToilette> {
         future: futureGroups,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No groups found'));
+            return const Center(child: Text('No groups found'));
           } else {
             List<Group> groups = snapshot.data!;
             return ListView.builder(

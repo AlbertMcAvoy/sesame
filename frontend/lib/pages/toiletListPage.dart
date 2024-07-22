@@ -8,7 +8,7 @@ class ToiletListPage extends StatelessWidget {
   final int groupId;
   final Group group;
 
-  ToiletListPage({required this.groupId, required this.group});
+  const ToiletListPage({required this.groupId, required this.group});
 
   Future<List<WaterCloset>> fetchToilets() async {
     final waterClosetService = WaterClosetService();
@@ -34,10 +34,10 @@ class ToiletListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Toilettes'),
+        title: const Text('Toilettes'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.map),
+            icon: const Icon(Icons.map),
             onPressed: _launchMapsUrl,
           ),
         ],
@@ -47,12 +47,12 @@ class ToiletListPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print('test 1');
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             print('test 2');
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No toilets available'));
+            return const Center(child: Text('No toilets available'));
           }
 
           print('n"importe quoi');

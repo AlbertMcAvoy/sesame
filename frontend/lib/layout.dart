@@ -3,26 +3,25 @@ import 'pages/accueil.dart';
 import 'pages/report.dart';
 import 'pages/returnOk.dart';
 import 'toilet_dynamic.dart';
-import 'manage_door.dart';
 
 class Layout extends StatefulWidget {
+  const Layout({super.key});
+
   @override
-  _LayoutState createState() => _LayoutState();
+  State createState() => _LayoutState();
 }
 
 class _LayoutState extends State<Layout> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static List<Widget> _widgetOptions = <Widget>[
-    MaterialApp(
+  static final List<Widget> _widgetOptions = <Widget>[
+    const MaterialApp(
       home: ListToilette(),
     ),
     ToiletDynamic(
       index: 0,
     ),
-      ReportToilette(),
-    ReturnOk(),
+    const ReportToilette(),
+    const ReturnOk(),
   ];
 
   void _onItemTapped(int index) {
@@ -34,9 +33,9 @@ class _LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffe2e2e2),
+      backgroundColor: const Color(0xffe2e2e2),
       appBar: AppBar(
-        title: Center(
+        title: const Center(
           child: Text(
             'Sanitaires à proximité',
             style: TextStyle(
@@ -44,7 +43,7 @@ class _LayoutState extends State<Layout> {
             ),
           ),
         ),
-        backgroundColor: Color(0xff003366),
+        backgroundColor: const Color(0xff003366),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -66,8 +65,8 @@ class _LayoutState extends State<Layout> {
         ],
         currentIndex: _selectedIndex,
         unselectedItemColor: Colors.white,
-        selectedItemColor: Color(0xff98FF98),
-        backgroundColor: Color(0xff003366),
+        selectedItemColor: const Color(0xff98FF98),
+        backgroundColor: const Color(0xff003366),
         onTap: _onItemTapped,
       ),
     );
