@@ -1,4 +1,9 @@
+# IDEs and editors
 .vscode
-/frontend/linux/flutter
-/frontend/windows/flutter
-/frontend/macos/flutter
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
