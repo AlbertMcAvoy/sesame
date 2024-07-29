@@ -2,9 +2,10 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { User } from '../../../types/user';
 import { environment } from '../../../../environments/environment';
 import { SsrCookieService } from 'ngx-cookie-service-ssr';
+import { Credentials } from '../../../types/user';
+import { log } from 'console';
  
 @Injectable({
   providedIn: 'root'
@@ -17,12 +18,12 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router, private cookieService: SsrCookieService) {}
 
   // Sign-in
-  signIn(user: User) {
+  signIn(credentials: Credentials) {
     return this.http
-      .post<any>(`${this.endpoint}/login`, user)
+      .post<any>(`${this.endpoint}/auth`, {mail: credentials.mail})
       .pipe(catchError(this.handleError))
       .subscribe((res: any) => {
-        this.cookieService.set('access_token', res.token, { expires: 90, path: '/' });
+        this.cookieService.set('access_token', res, { expires: 90, path: '/' });
         this.router.navigate(["/"]);
       });
   }
@@ -33,7 +34,7 @@ export class AuthService {
 
   get isLoggedIn(): boolean {
     let authToken = this.getToken();
-    return (authToken !== null && authToken !== '') ? true : false;
+    return (authToken !== undefined && authToken !== null && authToken !== '') ? true : false;
   }
 
   doLogout() {

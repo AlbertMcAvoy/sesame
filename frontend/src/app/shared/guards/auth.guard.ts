@@ -12,3 +12,14 @@ export const authGuard = () => {
   }
   return true
 };
+
+export const authLoginGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if(auth.isLoggedIn) {
+    router.navigateByUrl('/')
+    return false
+  }
+  return true
+};
