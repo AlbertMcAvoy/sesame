@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { User } from '../../../types/user';
 import { environment } from '../../../../environments/environment';
+import { SsrCookieService } from 'ngx-cookie-service-ssr';
  
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,8 @@ export class AuthService {
   
   endpoint: string = environment.apiUrl;
   headers = new HttpHeaders().set('Content-Type', 'application/json');
-  
-  constructor(private http: HttpClient, public router: Router) {}
+
+  constructor(private http: HttpClient, private router: Router, private cookieService: SsrCookieService) {}
 
   // Sign-in
   signIn(user: User) {
@@ -21,22 +22,22 @@ export class AuthService {
       .post<any>(`${this.endpoint}/login`, user)
       .pipe(catchError(this.handleError))
       .subscribe((res: any) => {
-        localStorage.setItem('access_token', res.token);
-        this.router.navigate(["/"])
+        this.cookieService.set('access_token', res.token, { expires: 90, path: '/' });
+        this.router.navigate(["/"]);
       });
   }
 
   getToken() {
-    return localStorage.getItem('access_token');
+    return this.cookieService.get('access_token');
   }
 
   get isLoggedIn(): boolean {
-    let authToken = localStorage.getItem('access_token');
-    return authToken !== null ? true : false;
+    let authToken = this.getToken();
+    return (authToken !== null && authToken !== '') ? true : false;
   }
 
   doLogout() {
-    let removeToken = localStorage.removeItem('access_token');
+    let removeToken = this.cookieService.delete('access_token');
     if (removeToken == null) {
       this.router.navigate(['log-in']);
     }
