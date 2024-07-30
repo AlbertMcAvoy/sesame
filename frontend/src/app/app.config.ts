@@ -11,6 +11,7 @@ import {
   GoogleLoginProvider,
 } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([authInterceptor])
     ),
+    provideAnimations(),
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {
