@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -12,17 +12,22 @@ import {
 } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { TemplatePageTitleStrategy } from './shared/services/routing/title.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideClientHydration(),
     provideHttpClient(
       withFetch(),
       withInterceptors([authInterceptor])
     ),
     provideAnimations(),
+    {
+      provide: TitleStrategy,
+      useClass: TemplatePageTitleStrategy
+    },
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {
