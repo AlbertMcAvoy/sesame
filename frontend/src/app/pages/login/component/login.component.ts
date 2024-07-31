@@ -21,7 +21,6 @@ export class LoginComponent {
 
   ngOnInit(): void {
     this.googleAuthService.authState.subscribe((user: SocialUser) => {
-      console.log(user)
       this.authService.signIn({mail: user.email});
     });
   }
