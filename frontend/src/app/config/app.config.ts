@@ -1,18 +1,18 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
 
-import { routes } from './app.routes';
+import { routes } from '../app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './shared/interceptors/auth.interceptor';
+import { authInterceptor } from '../shared/interceptors/auth.interceptor';
 
 import { SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import {
   GoogleLoginProvider,
 } from '@abacritt/angularx-social-login';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { TemplatePageTitleStrategy } from './shared/services/routing/title.service';
+import { TemplatePageTitleStrategy } from '../shared/providers/title.provider';
 
 export const appConfig: ApplicationConfig = {
   providers: [

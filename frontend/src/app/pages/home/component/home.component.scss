@@ -1,0 +1,19 @@
+p-virtualscroller {
+    flex: 1;
+
+    display: flex;
+
+    .p-virtualscroller {
+        flex: 1;
+
+        display: flex;
+
+        .p-virtualscroller-content {
+            flex: 1;
+
+            .p-virtualscroller-list {
+                height: 100% !important;
+            }
+        }
+    }
+}

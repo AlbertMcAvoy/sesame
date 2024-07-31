@@ -1,4 +1,4 @@
-<p-menubar [model]="items" styleClass="absolute w-screen bottom-0">
+<p-menubar [model]="items" styleClass="w-screen">
     <ng-template pTemplate="item" let-item>
         <a [routerLink]="item.route" class="p-ripple p-element p-menuitem-link">
             <i [class]="item.icon + ' text-white'"></i>
