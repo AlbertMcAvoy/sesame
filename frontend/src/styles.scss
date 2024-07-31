@@ -1,1 +1,21 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+    margin: 0;
+}
+
+.title {
+    font-size: 3vw;
+    font-style: normal;
+    font-weight: 600;
+}
+
+@media (max-width: 800px) {
+    .title {
+        font-size: 3.5vw;
+    }
+}
+
+@media (min-width: 1480px) {
+    .title {
+        font-size: 2.5vw;
+    }
+}

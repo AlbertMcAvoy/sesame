@@ -5,8 +5,7 @@ import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { SsrCookieService } from 'ngx-cookie-service-ssr';
 import { Credentials } from '../../../types/user';
-import { log } from 'console';
- 
+
 @Injectable({
   providedIn: 'root'
 })

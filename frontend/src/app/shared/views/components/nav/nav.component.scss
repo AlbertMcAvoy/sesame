@@ -1,0 +1,44 @@
+.p-menubar {
+    background-color: var(--primary, #036);
+}
+
+p-menubarsub, 
+.p-menubar-root-list {
+    width: 100%;
+}
+
+.p-menubar-root-list {
+    justify-content: space-evenly;
+}
+
+.p-menubar .p-menuitem:not(.p-highlight):not(.p-disabled):not(.p-focus) .p-menuitem-content:hover .p-menuitem-link i {
+    color: #4b5563 !important;
+}
+
+.p-menubar .p-focus.p-menuitem:not(.p-highlight):not(.p-disabled) .p-menuitem-content {
+    background-color: transparent;
+}
+
+@media screen and (max-width: 960px) {
+    .p-menubar .p-menubar-button {
+        display: none;
+   }
+    .p-menubar {
+        position: inherit;
+   }
+    .p-menubar .p-menubar-root-list {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        position: unset;
+        padding: unset;
+        background: inherit;
+        border: unset;
+        box-shadow: unset;
+        width: unset;
+   }
+
+   .p-menubar .p-menubar-root-list .p-menuitem {
+    width: auto;
+   }
+}
